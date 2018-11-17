@@ -13,13 +13,13 @@ public class RSAUnitTest {
 
     @Test
     public void testPowerModular() {
-        Assert.assertEquals(BigInteger.ZERO, RSA.powerMod(BigInteger.ONE,BigInteger.ONE,BigInteger.ONE));
-        Assert.assertEquals(BigInteger.valueOf(32635), RSA.powerMod(
-                BigInteger.valueOf(1234),
-                BigInteger.valueOf(535),
-                BigInteger.valueOf(99999)
+        Assert.assertEquals(BigInteger.ZERO, RSA.powerMod(1,1,1));
+        Assert.assertEquals(32635, RSA.powerMod(
+                1234,
+                535,
+                99999
         ));
-        Assert.assertEquals(BigInteger.ZERO, RSA.powerMod(BigInteger.TEN,BigInteger.TEN,BigInteger.TEN));
+        Assert.assertEquals(0, RSA.powerMod(10,10,10));
     }
 
     @Test

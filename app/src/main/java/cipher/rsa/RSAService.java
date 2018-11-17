@@ -9,23 +9,13 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
+import cipher.CipherServiceAPI;
 import cipher.CipherStatus;
 import root.iv.protection.App;
 import root.iv.protection.CipherActivity;
 
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p>
- * TODO: Customize class - update intent actions, extra parameters and static
- * helper methods.
- */
-public class RSAService extends IntentService {
+public class RSAService extends IntentService implements CipherServiceAPI {
     private static final String TAG = "RSA Service: ";
-
-    public static final String INTENT_PATH = "INTENT_PATH";
-    public static final String INTENT_OUTFILE_NAME = "INTENT_OUTFILE_NAME";
-    public static final String INTENT_DECIPHER_NAME = "INTENT_DECIPHER_NAME";
 
     public RSAService() {
         super("RSA Service");

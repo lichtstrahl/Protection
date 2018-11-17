@@ -51,33 +51,33 @@ public class RSA {
     }
 
     public int cipher(int msg) {
-        int c = powerMod(BigInteger.valueOf(msg), publicKey.getKey(), publicKey.getMod()).intValue();
-        return c;
+        return powerMod(msg, publicKey.getKey().longValue(), publicKey.getMod().longValue());
     }
 
     public int[] cipher(int[] msg) {
-        int[] c = new int[msg.length];
+        int n = msg.length;
+        int[] c = new int[n];
 
-        for (int i = 0; i < msg.length; i++) {
+        for (int i = 0; i < n; i++) {
             c[i] = cipher(msg[i]);
-            double pr = i*100.0 / msg.length ;
-            App.logI("Cipher %" + String.format(Locale.ENGLISH, "%2.3f", pr));
+//            double pr = i*100.0 / msg.length ;
+//            App.logI("Cipher %" + String.format(Locale.ENGLISH, "%2.3f", pr));
         }
 
         return c;
     }
 
     public int decipher(int c) {
-        int m = powerMod(BigInteger.valueOf(c), privateKey.getKey(), privateKey.getMod()).intValue();
-        return m;
+        return powerMod(c, privateKey.getKey().longValue(), privateKey.getMod().longValue());
     }
 
     public int[] decipher(int[] c) {
-        int[] m = new int[c.length];
-        for (int i =0; i < c.length; i++) {
+        int n = c.length;
+        int[] m = new int[n];
+        for (int i =0; i < n; i++) {
             m[i] = decipher(c[i]);
-            double pr = i*100.0 / c.length;
-            App.logI("Decipher %" + String.format(Locale.ENGLISH, "%2.3f", pr));
+//            double pr = i*100.0 / c.length;
+//            App.logI("Decipher %" + String.format(Locale.ENGLISH, "%2.3f", pr));
         }
 
         return m;
@@ -163,19 +163,20 @@ public class RSA {
         return sieve;
     }
 
-    public static BigInteger powerMod(BigInteger a, BigInteger k, BigInteger n) {
-        BigInteger r = BigInteger.ONE;
-        BigInteger ax = a;
-        while (!k.equals(BigInteger.ZERO)) {
-            if (!k.mod(BigInteger.valueOf(2)).equals(BigInteger.ZERO))
-                r = r.multiply(ax).mod(n);
+    public static int powerMod(long a, long k, long n) {
+        long r = 1;
+        long ax = a;
+        while (k != 0) {
+            if (k % 2 != 0)
+                r = (r*ax) % n;
 
-            ax = ax.multiply(ax).mod(n);
-            k = k.divide(BigInteger.valueOf(2));
+            ax = (ax*ax) % n;
+            k = k / 2;
         }
 
-        return r;
+        return (int) r;
     }
+
 
     public class Key {
         private BigInteger key;

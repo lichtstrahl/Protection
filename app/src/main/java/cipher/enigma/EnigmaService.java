@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import cipher.CipherServiceAPI;
 import root.iv.protection.App;
 import root.iv.protection.CipherActivity.CipherReceiver;
 import cipher.CipherStatus;
@@ -17,10 +18,7 @@ import cipher.CipherStatus;
 /**
  * Сбои не происходят только на текстовых файлах. В чем причина?
  */
-public class EnigmaService extends IntentService {
-    public static final String INTENT_PATH = "INTENT_PATH";
-    public static final String INTENT_OUTFILE_NAME = "INTENT_OUTFILE_NAME";
-    public static final String INTENT_DECIPHER_NAME = "INTENT_DECIPHER_NAME";
+public class EnigmaService extends IntentService implements CipherServiceAPI {
     public static final String INTENT_POS1 = "INTENT_POS1";
     public static final String INTENT_POS2 = "INTENT_POS2";
     public static final String INTENT_POS3 = "INTENT_POS3";
@@ -60,11 +58,6 @@ public class EnigmaService extends IntentService {
                 FileUtils.writeByteArrayToFile(new File(decipherPath), fromIntToByte(decipherContent));
                 sendStatus(cipherIntent, CipherStatus.DECIPHER_FILE);
 
-//            byte[] base = fromIntToByte(baseContent);
-//            byte[] decipher = fromIntToByte(decipherContent);
-//            for (int i = 0; i < decipherContent.length; i++) {
-//                int a = 0;
-//            }
             } catch (IOException e) {
                 App.logE(TAG + e.getMessage());
             }

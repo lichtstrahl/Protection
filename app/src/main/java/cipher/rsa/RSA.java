@@ -37,17 +37,17 @@ public class RSA {
         // Получим N
         BigInteger N = BigInteger.valueOf(P*Q);
         // Получим e
-        BigInteger e = calcuteE(BigInteger.valueOf((P-1)*(Q-1)));
+        long e = calcuteE((P-1)*(Q-1));
         // Ищем d
-        BigInteger d = findD(e, BigInteger.valueOf((P-1)*(Q-1)));
+        long d = findD(e, (P-1)*(Q-1));
 
-        while (d.intValue() < 0) {
-            e = calcuteE(BigInteger.valueOf((P-1)*(Q-1)));
-            d = findD(e, BigInteger.valueOf((P-1)*(Q-1)));
+        while (d < 0) {
+            e = calcuteE((P-1)*(Q-1));
+            d = findD(e, (P-1)*(Q-1));
         }
 
-        publicKey = new Key(e, N);
-        privateKey = new Key(d, N);
+        publicKey = new Key(BigInteger.valueOf(e), N);
+        privateKey = new Key(BigInteger.valueOf(d), N);
     }
 
     public int cipher(int msg) {
@@ -83,38 +83,38 @@ public class RSA {
         return m;
     }
 
-    public static BigInteger calcuteE(BigInteger f) {
-        BigInteger e = BigInteger.valueOf(Math.abs(random.nextInt(Short.MAX_VALUE)));
-        while (!nod(e,f).equals(BigInteger.ONE))
-            e = BigInteger.valueOf(Math.abs(random.nextInt(Short.MAX_VALUE)));
+    public static long calcuteE(long f) {
+        long e = Math.abs(random.nextInt(Short.MAX_VALUE));
+        while (nod(BigInteger.valueOf(e), BigInteger.valueOf(f)).longValue() != 1)
+            e = Math.abs(random.nextInt(Short.MAX_VALUE));
         return e;
     }
 
-    public static BigInteger findD(BigInteger a, BigInteger b) {
-        BigInteger x;
-        BigInteger[] E = new BigInteger[] {BigInteger.ONE,BigInteger.ZERO,BigInteger.ZERO,BigInteger.ONE};
+    public static long findD(long a, long b) {
+        long x;
+        long[] E = new long[] {1,0,0,1};
         while (true) {
-            BigInteger q = a.divide(b);
-            BigInteger r = a.mod(b);
-            if ( r.equals(BigInteger.ZERO) )
+            long q = a/b;
+            long r = a%b;
+            if ( r == 0 )
             {
                 x = E[1];
                 break;
             }
-            E = Mult2x2Matr( E, new BigInteger[] { BigInteger.ZERO, BigInteger.ONE, BigInteger.ONE, q.negate() } );
+            E = Mult2x2Matr( E, new long[] { 0, 1, 1, -q } );
             a = b;
             b = r;
         }
         return x;
     }
 
-    static BigInteger[] Mult2x2Matr(BigInteger[] a, BigInteger[] b)
+    static long[] Mult2x2Matr(long[] a, long[] b)
     {
-        BigInteger[] res = new BigInteger[4];
-        res[0] = a[0].multiply(b[0]) .add(a[1].multiply(b[2]));  // a0*b0 + a1*b2
-        res[1] = a[0].multiply(b[1]) .add(a[1].multiply(b[3]));  // a0*b1 + a1*b3
-        res[2] = a[2].multiply(b[0]) .add(a[3]).multiply(b[2]);  // a2*b0 + a3*b2
-        res[3] = a[2].multiply(b[1]) .add(a[3]).multiply(b[3]);  // a2*b1 + a3*b3
+        long[] res = new long[4];
+        res[0] = a[0]*(b[0]) + (a[1])*(b[2]);  // a0*b0 + a1*b2
+        res[1] = a[0]*(b[1]) + (a[1])*(b[3]);  // a0*b1 + a1*b3
+        res[2] = a[2]*(b[0]) + (a[3])*(b[2]);  // a2*b0 + a3*b2
+        res[3] = a[2]*(b[1]) + (a[3])*(b[3]);  // a2*b1 + a3*b3
         return res;
     }
 

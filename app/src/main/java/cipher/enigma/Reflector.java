@@ -21,4 +21,11 @@ public class Reflector extends Wheel {
     int reflect(int c) {
         return wheel.get(c);
     }
+
+    @Override
+    protected Object clone() {
+        Reflector reflector = new Reflector();
+        reflector.wheel = new ArrayList<>(wheel);
+        return reflector;
+    }
 }

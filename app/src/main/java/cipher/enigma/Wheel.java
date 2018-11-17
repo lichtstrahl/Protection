@@ -9,4 +9,17 @@ abstract public class Wheel {
     public ArrayList<Integer> getWheel() {
         return wheel;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Wheel) {
+            Wheel w = (Wheel)obj;
+            for (int i = 0; i < SIZE; i++)
+                if (!wheel.get(i).equals(w.wheel.get(i)))
+                    return false;
+            return true;
+        }
+        return false;
+    }
+
 }

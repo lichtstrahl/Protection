@@ -1,5 +1,7 @@
 package cipher.enigma;
 
+import java.io.PrintStream;
+
 public interface RotorAPI {
     /**
      * Сдвиг ротора на одну позицию.
@@ -32,4 +34,6 @@ public interface RotorAPI {
      *
      */
     int decipher(int c);
+
+    void printState(PrintStream stream);
 }

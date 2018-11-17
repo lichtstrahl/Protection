@@ -1,9 +1,11 @@
 package cipher.enigma;
 
+import java.io.PrintStream;
+
 public class Enigma {
-    private RotorAPI lRotor;
-    private RotorAPI mRotor;
-    private RotorAPI rRotor;
+    private Rotor lRotor;
+    private Rotor mRotor;
+    private Rotor rRotor;
     private Reflector reflector;
 
     private void configuration() {
@@ -47,19 +49,46 @@ public class Enigma {
         rRotor.reset();
     }
 
-    public RotorAPI getlRotor() {
+    public Rotor getlRotor() {
         return lRotor;
     }
 
-    public RotorAPI getmRotor() {
+    public Rotor getmRotor() {
         return mRotor;
     }
 
-    public RotorAPI getrRotor() {
+    public Rotor getrRotor() {
         return rRotor;
     }
 
     public Reflector getReflector() {
         return reflector;
+    }
+
+    public void printState(PrintStream stream) {
+        lRotor.printState(stream);
+        mRotor.printState(stream);
+        rRotor.printState(stream);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Enigma) {
+            Enigma e = (Enigma)obj;
+            return lRotor.equals(e.lRotor) && rRotor.equals(e.rRotor) && mRotor.equals(e.mRotor) && reflector.equals(e.reflector);
+        }
+        return false;
+    }
+
+    @Override
+    public Object clone() {
+        Enigma enigma = new Enigma(0,0,0);
+        enigma.lRotor = (Rotor)lRotor.clone();
+        enigma.mRotor = (Rotor)mRotor.clone();
+        enigma.rRotor = (Rotor)rRotor.clone();
+        enigma.reflector = (Reflector)reflector.clone();
+        enigma.lRotor.addNextRotor(enigma.mRotor);
+        enigma.mRotor.addNextRotor(enigma.rRotor);
+        return enigma;
     }
 }

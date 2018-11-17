@@ -79,7 +79,7 @@ public class EnigmaService extends IntentService implements CipherServiceAPI {
         }
     }
 
-    private int[] fromByteToInt(byte[] bytes) {
+    public static int[] fromByteToInt(byte[] bytes) {
         int[] intArray = new int[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
             if (bytes[i] < 0) {
@@ -91,7 +91,7 @@ public class EnigmaService extends IntentService implements CipherServiceAPI {
         return intArray;
     }
 
-    private byte[] fromIntToByte(int[] ints) {
+    public static byte[] fromIntToByte(int[] ints) {
         byte[] byteArray = new byte[ints.length];
         for (int i = 0; i < ints.length; i++)
             byteArray[i] = (byte)( ints[i] - 128);

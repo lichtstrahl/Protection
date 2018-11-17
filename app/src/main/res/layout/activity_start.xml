@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StartActivity">
+
+    <ImageButton
+        android:id="@+id/buttonLoad"
+        android:layout_width="@dimen/btnSize"
+        android:layout_height="@dimen/btnSize"
+        android:text="@string/test"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/ic_lock"
+        android:scaleType="centerCrop"
+        android:backgroundTint="@android:color/transparent"/>
+
+    <ImageView
+        android:id="@+id/viewDone"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_margin="4dp"
+        android:contentDescription="@string/done"
+        android:src="@drawable/ic_done"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/buttonLoad"
+        app:layout_constraintStart_toStartOf="@+id/buttonLoad"
+        app:layout_constraintTop_toBottomOf="@+id/buttonLoad" />
+
+    <Button
+        android:id="@+id/buttonStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="32dp"
+        android:text="@string/startApp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonLoad" />
+
+    <TextView
+        android:id="@+id/viewDevice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</android.support.constraint.ConstraintLayout>

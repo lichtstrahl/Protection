@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="progressSize">100dp</dimen>
+    <dimen name="btnSize">280dp</dimen>
+    <dimen name="stdText">16sp</dimen>
+    <dimen name="stdMargin">4dp</dimen>
+
+    <dimen name="bigText">36sp</dimen>
+    <dimen name="bigMargin">16dp</dimen>
+</resources>

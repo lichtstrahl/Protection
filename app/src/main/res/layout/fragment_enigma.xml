@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tool="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textSize="@dimen/bigText"
+        android:text="@string/titleEnigma"/>
+
+    <!-- Rotor L -->
+    <TextView
+        android:id="@+id/viewRotorL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/bigMargin"
+        android:layout_below="@id/title"
+        android:layout_centerHorizontal="true"
+        android:textSize="@dimen/bigText"
+        tool:text="255" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@id/seekRotorL"
+        android:layout_alignBottom="@id/viewRotorL"
+        android:textSize="@dimen/stdText"
+        android:text="@string/rotorL"/>
+
+    <SeekBar
+        android:id="@+id/seekRotorL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/viewRotorL"
+        android:layout_margin="@dimen/stdMargin"
+        android:max="255"/>
+
+    <!-- Rotor M -->
+    <TextView
+        android:id="@+id/viewRotorM"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/bigMargin"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/seekRotorL"
+        android:textSize="@dimen/bigText"
+        tool:text="155" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@id/seekRotorM"
+        android:layout_alignBottom="@id/viewRotorM"
+        android:textSize="@dimen/stdText"
+        android:text="@string/rotorM"/>
+
+    <SeekBar
+        android:id="@+id/seekRotorM"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/viewRotorM"
+        android:layout_margin="@dimen/stdMargin"
+        android:max="255"/>
+
+    <!-- Rotor R -->
+    <TextView
+        android:id="@+id/viewRotorR"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/bigMargin"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/seekRotorM"
+        android:textSize="@dimen/bigText"
+        tool:text="155" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@id/seekRotorR"
+        android:layout_alignBottom="@id/viewRotorR"
+        android:textSize="@dimen/stdText"
+        android:text="@string/rotorR"/>
+
+    <SeekBar
+        android:id="@+id/seekRotorR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/viewRotorR"
+        android:layout_margin="@dimen/stdMargin"
+        android:max="255"/>
+
+</RelativeLayout>

@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Защита информации</string>
+    <string name="error_security">Ошибка безопасности при доступе к параметрам телефона.</string>
+    <string name="load">загрузка</string>
+    <string name="test">Проверка</string>
+    <string name="retrofitFailure">Ошибка. Не удалось подключиться к серверу</string>
+    <string name="invalidBody">Некорректный ответ сервера. Вероятно он не работает</string>
+    <string name="errorSecurity">Ошибка безопасности при записи параметров.</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="welcome">Welcome!</string>
+    <string name="startApp">Запуск</string>
+    <string name="notTargetDevice">Ваше устройство не находится в списке разрешенных.</string>
+    <string name="done">Done</string>
+    <string name="selectFile">Выбрать файл</string>
+    <string name="buttonCipher">Шифровать</string>
+    
+    <!-- Enigma Service -->
+    <string name="baseFileReaded">Файл прочитан</string>
+    <string name="fileCiphered">Файл зашифрован 1 раз</string>
+    <string name="fileDeciphered">Файл расшифрован</string>
+
+    <!-- Fragment Enigma -->
+    <string name="rotorL">Левый ротор:</string>
+    <string name="rotorM">Средний ротор:</string>
+    <string name="rotorR">Правый ротор:</string>
+    <string name="titleEnigma">Энигма</string>
+
+    <!-- Fragment RSA -->
+    <string name="titleRSA">RSA</string>
+</resources>

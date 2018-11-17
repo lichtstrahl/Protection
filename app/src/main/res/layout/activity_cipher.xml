@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorPrimaryLight"
+    tools:context=".CipherActivity">
+
+    <TextView
+        android:id="@+id/viewPath"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/stdMargin"
+        android:textSize="@dimen/stdText"
+        android:background="@color/colorPrimary"/>
+
+    <Button
+        android:id="@+id/buttonSelectFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/viewPath"
+        android:layout_alignEnd="@id/viewPath"
+        android:text="@string/selectFile"/>
+
+    <FrameLayout
+        android:id="@+id/layoutContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonSelectFile"
+        android:layout_above="@id/buttonCipher">
+    </FrameLayout>
+
+
+
+    <Button
+        android:id="@+id/buttonCipher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/buttonCipher"/>
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="@dimen/progressSize"
+        android:layout_height="@dimen/progressSize"
+        android:layout_toEndOf="@id/buttonCipher"
+        android:layout_alignTop="@id/buttonCipher"
+        android:layout_alignBottom="@id/buttonCipher"
+        android:visibility="gone"/>
+
+
+</RelativeLayout>

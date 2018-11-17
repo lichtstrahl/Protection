@@ -2,10 +2,7 @@ package cipher.rsa;
 
 import java.math.BigInteger;
 import java.util.BitSet;
-import java.util.Locale;
 import java.util.Random;
-
-import root.iv.protection.App;
 
 // TODO Выбор P и Q должен быть случайным
 public class RSA {
@@ -22,36 +19,36 @@ public class RSA {
         BitSet set = getPrimesUpTo(BLOCK_SIZE/2);
 
         // Получим большие простые P,Q
-        int P = -1;
-        int Q = -1;
+        int p = -1;
+        int q = -1;
         for (int i = set.length()-1; i >= 0; i--) {
             boolean bit = set.get(i);
-            if (bit && P > 0) {
-                Q = i;
+            if (bit && p > 0) {
+                q = i;
                 break;
             }
 
-            if (bit && P < 0)
-                P = i;
+            if (bit && p < 0)
+                p = i;
         }
         // Получим N
-        BigInteger N = BigInteger.valueOf(P*Q);
+        long N = (long)p*q;
         // Получим e
-        long e = calcuteE((P-1)*(Q-1));
+        long e = calcuteE((p-1L)*(q-1L));
         // Ищем d
-        long d = findD(e, (P-1)*(Q-1));
+        long d = findD(e, (p-1L)*(q-1L));
 
         while (d < 0) {
-            e = calcuteE((P-1)*(Q-1));
-            d = findD(e, (P-1)*(Q-1));
+            e = calcuteE((p-1L)*(q-1L));
+            d = findD(e, (p-1L)*(q-1L));
         }
 
-        publicKey = new Key(BigInteger.valueOf(e), N);
-        privateKey = new Key(BigInteger.valueOf(d), N);
+        publicKey = new Key(e, N);
+        privateKey = new Key(d, N);
     }
 
     public int cipher(int msg) {
-        return powerMod(msg, publicKey.getKey().longValue(), publicKey.getMod().longValue());
+        return powerMod(msg, publicKey.getKey(), publicKey.getMod());
     }
 
     public int[] cipher(int[] msg) {
@@ -60,15 +57,13 @@ public class RSA {
 
         for (int i = 0; i < n; i++) {
             c[i] = cipher(msg[i]);
-//            double pr = i*100.0 / msg.length ;
-//            App.logI("Cipher %" + String.format(Locale.ENGLISH, "%2.3f", pr));
         }
 
         return c;
     }
 
     public int decipher(int c) {
-        return powerMod(c, privateKey.getKey().longValue(), privateKey.getMod().longValue());
+        return powerMod(c, privateKey.getKey(), privateKey.getMod());
     }
 
     public int[] decipher(int[] c) {
@@ -76,40 +71,38 @@ public class RSA {
         int[] m = new int[n];
         for (int i =0; i < n; i++) {
             m[i] = decipher(c[i]);
-//            double pr = i*100.0 / c.length;
-//            App.logI("Decipher %" + String.format(Locale.ENGLISH, "%2.3f", pr));
         }
 
         return m;
     }
 
-    public static long calcuteE(long f) {
+    private static long calcuteE(long f) {
         long e = Math.abs(random.nextInt(Short.MAX_VALUE));
         while (nod(BigInteger.valueOf(e), BigInteger.valueOf(f)).longValue() != 1)
             e = Math.abs(random.nextInt(Short.MAX_VALUE));
         return e;
     }
 
-    public static long findD(long a, long b) {
+    private static long findD(long a, long b) {
         long x;
-        long[] E = new long[] {1,0,0,1};
+        long[] single = new long[] {1,0,0,1};
+
         while (true) {
             long q = a/b;
             long r = a%b;
             if ( r == 0 )
             {
-                x = E[1];
+                x = single[1];
                 break;
             }
-            E = Mult2x2Matr( E, new long[] { 0, 1, 1, -q } );
+            single = mult2X2Matr( single, new long[] { 0, 1, 1, -q } );
             a = b;
             b = r;
         }
         return x;
     }
 
-    static long[] Mult2x2Matr(long[] a, long[] b)
-    {
+    private static long[] mult2X2Matr(long[] a, long[] b) {
         long[] res = new long[4];
         res[0] = a[0]*(b[0]) + (a[1])*(b[2]);  // a0*b0 + a1*b2
         res[1] = a[0]*(b[1]) + (a[1])*(b[3]);  // a0*b1 + a1*b3
@@ -117,8 +110,6 @@ public class RSA {
         res[3] = a[2]*(b[1]) + (a[3])*(b[3]);  // a2*b1 + a3*b3
         return res;
     }
-
-
 
     private static BigInteger nod(BigInteger a, BigInteger b) {
         while (!b.equals(BigInteger.ZERO)) {
@@ -149,6 +140,7 @@ public class RSA {
                         sieve.flip((int)n);
                 }
             }
+
         // Все числа, кратные квадратам, помечаются как составные
         int r = 5;
         for (long r2 = r * r, dr2 = (r << 1L) + 1L; r2 < limit; ++r, r2 += dr2, dr2 += 2L)
@@ -177,20 +169,20 @@ public class RSA {
         return (int) r;
     }
 
-
     public class Key {
-        private BigInteger key;
-        private BigInteger mod;
-        Key(BigInteger k, BigInteger m) {
-            key = k;
+        private long partKey;
+        private long mod;
+
+        Key(long k, long m) {
+            partKey = k;
             mod = m;
         }
 
-        BigInteger getKey() {
-            return key;
+        long getKey() {
+            return partKey;
         }
 
-        BigInteger getMod() {
+        long getMod() {
             return mod;
         }
     }

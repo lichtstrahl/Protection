@@ -92,4 +92,16 @@ public class EnigmaFragment extends Fragment {
         outState.putInt(ARGS_RM, Integer.parseInt(viewRotorM.getText().toString()));
         outState.putInt(ARGS_RR, Integer.parseInt(viewRotorR.getText().toString()));
     }
+
+    public int getPosL() {
+        return Integer.parseInt(viewRotorL.getText().toString());
+    }
+
+    public int getPosM() {
+        return Integer.parseInt(viewRotorM.getText().toString());
+    }
+
+    public int getPosR() {
+        return Integer.parseInt(viewRotorR.getText().toString());
+    }
 }

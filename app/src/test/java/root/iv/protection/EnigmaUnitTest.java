@@ -28,7 +28,7 @@ public class EnigmaUnitTest {
 
     @Test
     public void anigmaALLByte() {
-        Enigma enigma1 = new Enigma(0,0,0);
+        Enigma enigma1 = new Enigma(15, 1, 0);
         Enigma enigma2 = (Enigma)enigma1.clone();
         assertEquals(enigma1, enigma2);
 

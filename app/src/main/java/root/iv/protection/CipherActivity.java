@@ -49,14 +49,15 @@ public class CipherActivity extends AppCompatActivity {
             return;
 
         if (fragment instanceof EnigmaFragment) {
-            startEnigmaCipher();
+            EnigmaFragment ef = (EnigmaFragment)fragment;
+            startEnigmaCipher(ef.getPosL(), ef.getPosM(), ef.getPosR());
         }
         if (fragment instanceof RSAFragment) {
             startRSACipher();
         }
     }
 
-    private void startEnigmaCipher() {
+    private void startEnigmaCipher(int pos1, int pos2, int pos3) {
         progressBar.setVisibility(View.VISIBLE);
         Intent enigmaIntent = new Intent(this, EnigmaService.class);
         String path = viewPath.getText().toString();
@@ -66,9 +67,9 @@ public class CipherActivity extends AppCompatActivity {
         enigmaIntent.putExtra(EnigmaService.INTENT_PATH, path);
         enigmaIntent.putExtra(EnigmaService.INTENT_OUTFILE_NAME, path.replace(filename, "cipher_"+filename));
         enigmaIntent.putExtra(EnigmaService.INTENT_DECIPHER_NAME, path.replace(filename, "decipher_"+filename));
-        enigmaIntent.putExtra(EnigmaService.INTENT_POS1, 0);
-        enigmaIntent.putExtra(EnigmaService.INTENT_POS2, 0);
-        enigmaIntent.putExtra(EnigmaService.INTENT_POS3, 0);
+        enigmaIntent.putExtra(EnigmaService.INTENT_POS1, pos1);
+        enigmaIntent.putExtra(EnigmaService.INTENT_POS2, pos2);
+        enigmaIntent.putExtra(EnigmaService.INTENT_POS3, pos3);
         startService(enigmaIntent);
     }
 

@@ -2,6 +2,8 @@ package cipher.enigma;
 
 import java.io.PrintStream;
 
+import root.iv.protection.App;
+
 public class Enigma {
     private Rotor lRotor;
     private Rotor mRotor;
@@ -37,9 +39,12 @@ public class Enigma {
     }
 
     public int[] cipher(int[] bArray) {
-        int[] result = new int[bArray.length];
-        for (int i = 0; i < bArray.length; i++)
+        int n = bArray.length;
+        int[] result = new int[n];
+        for (int i = 0; i < n; i++) {
+//            App.logI("Cipher %" + (n - i));
             result[i] = cipher(bArray[i]);
+        }
         return result;
     }
 
@@ -49,33 +54,29 @@ public class Enigma {
         rRotor.reset();
     }
 
-    public Rotor getlRotor() {
-        return lRotor;
+    public void rotateL(int count) {
+        for (int i = 0; i < count; i++)
+            lRotor.originalRotate();
     }
 
-    public Rotor getmRotor() {
-        return mRotor;
+    public void rotateM(int count) {
+        for (int i = 0; i < count; i++)
+            mRotor.originalRotate();
     }
 
-    public Rotor getrRotor() {
-        return rRotor;
-    }
-
-    public Reflector getReflector() {
-        return reflector;
-    }
-
-    public void printState(PrintStream stream) {
-        lRotor.printState(stream);
-        mRotor.printState(stream);
-        rRotor.printState(stream);
+    public void rotateR(int count) {
+        for (int i = 0; i < count; i++)
+            rRotor.originalRotate();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Enigma) {
             Enigma e = (Enigma)obj;
-            return lRotor.equals(e.lRotor) && rRotor.equals(e.rRotor) && mRotor.equals(e.mRotor) && reflector.equals(e.reflector);
+            return lRotor.equals(e.lRotor)
+                    && rRotor.equals(e.rRotor)
+                    && mRotor.equals(e.mRotor)
+                    && reflector.equals(e.reflector);
         }
         return false;
     }

@@ -3,7 +3,8 @@ package cipher.des;
 import android.content.Intent;
 
 import cipher.CipherService;
-import root.iv.protection.App;
+import cipher.CipherStatus;
+import root.iv.protection.CipherActivity;
 
 public class DESService extends CipherService {
 
@@ -13,7 +14,11 @@ public class DESService extends CipherService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        App.logI("DSA Service starded ...");
+        Intent cipherIntent = new Intent().setAction(CipherActivity.CipherReceiver.ACTION);
+
+        
+
+        sendStatus(cipherIntent, CipherStatus.DECIPHER_FILE);
     }
 
 }

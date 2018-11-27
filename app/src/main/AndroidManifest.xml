@@ -34,6 +34,9 @@
             android:exported="false" />
         <service
             android:name="cipher.rsa.RSAService"
+            android:exported="false" />
+        <service
+            android:name="cipher.des.DESService"
             android:exported="false"></service>
     </application>
 

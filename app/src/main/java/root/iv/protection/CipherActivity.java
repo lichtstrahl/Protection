@@ -16,10 +16,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import javax.crypto.Cipher;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cipher.CipherService;
 import cipher.CipherStatus;
+import cipher.des.DESFragment;
+import cipher.des.DESService;
 import cipher.rsa.RSAService;
 import dialog.OpenFileDialog;
 import cipher.enigma.EnigmaFragment;
@@ -52,8 +57,13 @@ public class CipherActivity extends AppCompatActivity {
             EnigmaFragment ef = (EnigmaFragment)fragment;
             startEnigmaCipher(ef.getPosL(), ef.getPosM(), ef.getPosR());
         }
+
         if (fragment instanceof RSAFragment) {
             startRSACipher();
+        }
+
+        if (fragment instanceof DESFragment) {
+            startDESCipher();
         }
     }
 
@@ -64,8 +74,8 @@ public class CipherActivity extends AppCompatActivity {
         String[] word = path.split("/");
         String filename = word[word.length-1];
 
-        enigmaIntent.putExtra(EnigmaService.INTENT_PATH, path);
-        enigmaIntent.putExtra(EnigmaService.INTENT_OUTFILE_NAME, path.replace(filename, "cipher_"+filename));
+        enigmaIntent.putExtra(CipherService.INTENT_PATH, path);
+        enigmaIntent.putExtra(CipherService.INTENT_OUTFILE_NAME, path.replace(filename, "cipher_"+filename));
         enigmaIntent.putExtra(EnigmaService.INTENT_DECIPHER_NAME, path.replace(filename, "decipher_"+filename));
         enigmaIntent.putExtra(EnigmaService.INTENT_POS1, pos1);
         enigmaIntent.putExtra(EnigmaService.INTENT_POS2, pos2);
@@ -85,6 +95,12 @@ public class CipherActivity extends AppCompatActivity {
         rsaIntent.putExtra(EnigmaService.INTENT_OUTFILE_NAME, path.replace(filename, "cipher_"+filename));
         rsaIntent.putExtra(EnigmaService.INTENT_DECIPHER_NAME, path.replace(filename, "decipher_"+filename));
         startService(rsaIntent);
+    }
+
+    private void startDESCipher() {
+        progressBar.setVisibility(View.VISIBLE);
+        Intent intent = new Intent(this, DESService.class);
+        startService(intent);
     }
 
     @Override
@@ -135,6 +151,15 @@ public class CipherActivity extends AppCompatActivity {
         return f;
     }
 
+    private Fragment setupDESFragment() {
+        DESFragment f = DESFragment.getInstance();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.layoutContent, f)
+                .commit();
+        return f;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_cipher, menu);
@@ -149,6 +174,10 @@ public class CipherActivity extends AppCompatActivity {
                 return true;
             case R.id.menuItemRSA:
                 fragment = setupRSAFragment();
+                return true;
+
+            case R.id.menuItemDES:
+                fragment = setupDESFragment();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

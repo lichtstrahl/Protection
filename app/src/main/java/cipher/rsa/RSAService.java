@@ -1,6 +1,5 @@
 package cipher.rsa;
 
-import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -9,12 +8,12 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
-import cipher.CipherServiceAPI;
+import cipher.CipherService;
 import cipher.CipherStatus;
 import root.iv.protection.App;
 import root.iv.protection.CipherActivity;
 
-public class RSAService extends IntentService implements CipherServiceAPI {
+public class RSAService extends CipherService {
     private static final String TAG = "RSA Service: ";
 
     public RSAService() {
@@ -51,27 +50,5 @@ public class RSAService extends IntentService implements CipherServiceAPI {
         }
     }
 
-    private int[] fromByteToInt(byte[] bytes) {
-        int[] intArray = new int[bytes.length];
-        for (int i = 0; i < bytes.length; i++) {
-            if (bytes[i] < 0) {
-                intArray[i] =bytes[i] & (byte)0b01111111;
-            } else {
-                intArray[i] =bytes[i] +  128;
-            }
-        }
-        return intArray;
-    }
 
-    private byte[] fromIntToByte(int[] ints) {
-        byte[] byteArray = new byte[ints.length];
-        for (int i = 0; i < ints.length; i++)
-            byteArray[i] = (byte)( ints[i] - 128);
-        return byteArray;
-    }
-
-    private void sendStatus(Intent intent, CipherStatus status) {
-        intent.putExtra(CipherActivity.CipherReceiver.INTENT_STATUS, status);
-        sendBroadcast(intent);
-    }
 }

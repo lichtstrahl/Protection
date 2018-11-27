@@ -1,6 +1,5 @@
 package cipher.enigma;
 
-import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -8,17 +7,16 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
-import cipher.CipherServiceAPI;
+import cipher.CipherService;
+import cipher.CipherStatus;
 import root.iv.protection.App;
 import root.iv.protection.CipherActivity.CipherReceiver;
-import cipher.CipherStatus;
 
 /**
  * Сбои не происходят только на текстовых файлах. В чем причина?
  */
-public class EnigmaService extends IntentService implements CipherServiceAPI {
+public class EnigmaService extends CipherService {
     public static final String INTENT_POS1 = "INTENT_POS1";
     public static final String INTENT_POS2 = "INTENT_POS2";
     public static final String INTENT_POS3 = "INTENT_POS3";
@@ -74,33 +72,4 @@ public class EnigmaService extends IntentService implements CipherServiceAPI {
             }
         }
     }
-
-    public static int[] fromByteToInt(byte[] bytes) {
-        int n = bytes.length;
-        int[] intArray = new int[n];
-
-        for (int i = 0; i < n; i++) {
-            if (bytes[i] < 0) {
-                intArray[i] =bytes[i] & (byte)0b01111111;
-            } else {
-                intArray[i] =bytes[i] +  128;
-            }
-        }
-
-        return intArray;
-    }
-
-    public static byte[] fromIntToByte(int[] ints) {
-        int n = ints.length;
-        byte[] byteArray = new byte[n];
-        for (int i = 0; i < n; i++)
-            byteArray[i] = (byte)( ints[i] - 128);
-        return byteArray;
-    }
-
-    private void sendStatus(Intent intent, CipherStatus status) {
-        intent.putExtra(CipherReceiver.INTENT_STATUS, status);
-        sendBroadcast(intent);
-    }
-
 }

@@ -28,4 +28,7 @@
 
     <!-- Fragment RSA -->
     <string name="titleRSA">RSA</string>
+
+    <!-- Fragment DES -->
+    <string name="titleDES">DES</string>
 </resources>

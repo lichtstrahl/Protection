@@ -1,10 +1,8 @@
 package cipher.enigma;
 
-import java.io.PrintStream;
+import cipher.Encoder;
 
-import root.iv.protection.App;
-
-public class Enigma {
+public class Enigma extends Encoder {
     private Rotor lRotor;
     private Rotor mRotor;
     private Rotor rRotor;
@@ -34,19 +32,13 @@ public class Enigma {
         b = mRotor.decipher(b);
         b = lRotor.decipher(b);
 
-        lRotor.rotate();
+        lRotor.
+                rotate();
         return b;
     }
-
-    public int[] cipher(int[] bArray) {
-        int n = bArray.length;
-        int[] result = new int[n];
-        for (int i = 0; i < n; i++) {
-//            App.logI("Cipher %" + (n - i));
-            result[i] = cipher(bArray[i]);
-        }
-        return result;
-    }
+    // ИУ7-72
+    // 12.1 9:00 экзамен
+    //
 
     public void reset() {
         lRotor.reset();

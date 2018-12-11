@@ -4,8 +4,9 @@ import java.math.BigInteger;
 import java.util.BitSet;
 import java.util.Random;
 
-// TODO Выбор P и Q должен быть случайным
-public class RSA {
+import cipher.Encoder;
+
+public class RSA extends Encoder {
     private static final int BLOCK_SIZE = 256;
     private static Random random = new Random();
     private Key publicKey;
@@ -49,17 +50,6 @@ public class RSA {
 
     public int cipher(int msg) {
         return powerMod(msg, publicKey.getKey(), publicKey.getMod());
-    }
-
-    public int[] cipher(int[] msg) {
-        int n = msg.length;
-        int[] c = new int[n];
-
-        for (int i = 0; i < n; i++) {
-            c[i] = cipher(msg[i]);
-        }
-
-        return c;
     }
 
     public int decipher(int c) {
@@ -155,6 +145,8 @@ public class RSA {
         return sieve;
     }
 
+
+    // Возведение в степень
     public static int powerMod(long a, long k, long n) {
         long r = 1;
         long ax = a;

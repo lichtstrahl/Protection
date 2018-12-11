@@ -23,9 +23,9 @@ abstract public class CipherService extends IntentService {
         int[] intArray = new int[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
             if (bytes[i] < 0) {
-                intArray[i] =bytes[i] & (byte)0b01111111;
+                intArray[i] =bytes[i] & (byte)0b01111111 + 128;
             } else {
-                intArray[i] =bytes[i] +  128;
+                intArray[i] =bytes[i];
             }
         }
         return intArray;
@@ -34,7 +34,7 @@ abstract public class CipherService extends IntentService {
     protected byte[] fromIntToByte(int[] ints) {
         byte[] byteArray = new byte[ints.length];
         for (int i = 0; i < ints.length; i++)
-            byteArray[i] = (byte)( ints[i] - 128);
+            byteArray[i] = (ints[i]>127) ? (byte)( ints[i] - 256) : (byte)ints[i];
         return byteArray;
     }
 }

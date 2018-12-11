@@ -31,6 +31,8 @@ import cipher.enigma.EnigmaFragment;
 import cipher.enigma.EnigmaService;
 import cipher.rsa.RSA;
 import cipher.rsa.RSAFragment;
+import zip.HuffmanFragment;
+import zip.HuffmanService;
 
 public class CipherActivity extends AppCompatActivity {
     private CipherReceiver cipherReceiver;
@@ -64,6 +66,10 @@ public class CipherActivity extends AppCompatActivity {
 
         if (fragment instanceof DESFragment) {
             startDESCipher();
+        }
+
+        if (fragment instanceof HuffmanFragment) {
+            startHuffmanZip();
         }
     }
 
@@ -101,6 +107,20 @@ public class CipherActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         Intent intent = new Intent(this, DESService.class);
         startService(intent);
+    }
+
+    private void startHuffmanZip() {
+        progressBar.setVisibility(View.VISIBLE);
+
+        Intent huffmanIntent = new Intent(this, HuffmanService.class);
+        String path = viewPath.getText().toString();
+        String[] word = path.split("/");
+        String filename = word[word.length-1];
+
+        huffmanIntent.putExtra(EnigmaService.INTENT_PATH, path);
+        huffmanIntent.putExtra(EnigmaService.INTENT_OUTFILE_NAME, path.replace(filename, "cipher_"+filename));
+        huffmanIntent.putExtra(EnigmaService.INTENT_DECIPHER_NAME, path.replace(filename, "decipher_"+filename));
+        startService(huffmanIntent);
     }
 
     @Override
@@ -160,6 +180,15 @@ public class CipherActivity extends AppCompatActivity {
         return f;
     }
 
+    private Fragment setupHuffmanFragment() {
+        HuffmanFragment f = HuffmanFragment.getInstance();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.layoutContent, f)
+                .commit();
+        return f;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_cipher, menu);
@@ -172,12 +201,17 @@ public class CipherActivity extends AppCompatActivity {
             case R.id.menuItemEnigma:
                 fragment = setupEnigmaFragment();
                 return true;
+
             case R.id.menuItemRSA:
                 fragment = setupRSAFragment();
                 return true;
 
             case R.id.menuItemDES:
                 fragment = setupDESFragment();
+                return true;
+
+            case R.id.menuItemHuffman:
+                fragment = setupHuffmanFragment();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

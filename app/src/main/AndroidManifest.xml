@@ -37,6 +37,9 @@
             android:exported="false" />
         <service
             android:name="cipher.des.DESService"
+            android:exported="false" />
+        <service
+            android:name="zip.HuffmanService"
             android:exported="false"></service>
     </application>
 

@@ -31,4 +31,5 @@
 
     <!-- Fragment DES -->
     <string name="titleDES">DES</string>
+    <string name="titleHuffman">Хаффман</string>
 </resources>

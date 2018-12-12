@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 import cipher.CipherService;
-import cipher.CipherStatus;
+import cipher.OperationStatus;
 import root.iv.protection.App;
 import root.iv.protection.CipherActivity;
 
@@ -32,19 +32,18 @@ public class RSAService extends CipherService {
 
             RSA rsa = new RSA();
 
-            Intent cipherIntent = new Intent().setAction(CipherActivity.CipherReceiver.ACTION);
             try {
                 byte[] byteContent = FileUtils.readFileToByteArray(new File(basePath));
                 int[] baseContent = fromByteToInt(byteContent);
-                sendStatus(cipherIntent, CipherStatus.READ_BASE_FILE);
+                CipherActivity.receiveStatus(this, OperationStatus.READ_BASE_FILE);
 
                 int[] cipherContent = rsa.cipher(baseContent);
                 FileUtils.writeByteArrayToFile(new File(cipherPath), fromIntToByte(cipherContent));
-                sendStatus(cipherIntent, CipherStatus.CIPHER_FILE);
+                CipherActivity.receiveStatus(this, OperationStatus.CIPHER_FILE);
 
                 int[] decipherContent = rsa.decipher(cipherContent);
                 FileUtils.writeByteArrayToFile(new File(decipherPath), fromIntToByte(decipherContent));
-                sendStatus(cipherIntent, CipherStatus.DECIPHER_FILE);
+                CipherActivity.receiveStatus(this, OperationStatus.DECIPHER_FILE);
             } catch (IOException e) {
                 App.logE(TAG + e.getMessage());
             }

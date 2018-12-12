@@ -14,7 +14,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import cipher.CipherService;
-import cipher.CipherStatus;
+import cipher.OperationStatus;
 import root.iv.protection.App;
 import root.iv.protection.CipherActivity;
 import zip.node.Node;
@@ -39,23 +39,24 @@ public class HuffmanService extends CipherService {
             File currentDir = new File(basePath).getParentFile();
 
             Huffman huffman = new Huffman();
-            Intent cipherIntent = new Intent().setAction(CipherActivity.CipherReceiver.ACTION);
 
             try {
                 byte[] byteContent = FileUtils.readFileToByteArray(new File(basePath));
                 int[] baseContent = fromByteToInt(byteContent);
-                sendStatus(cipherIntent, CipherStatus.READ_BASE_FILE);
+                CipherActivity.receiveStatus(this, OperationStatus.READ_BASE_FILE);
 
                 Container container = huffman.zip(baseContent);
                 FileUtils.writeByteArrayToFile(new File(cipherPath), fromIntToByte(container.getZip()));
                 saveRoot(container.root, currentDir);
-                sendStatus(cipherIntent, CipherStatus.CIPHER_FILE);
+                CipherActivity.receiveStatus(this, OperationStatus.ZIP_FILE);
 
                 Node root = readRoot(currentDir);
                 int[] zipContent = fromByteToInt(FileUtils.readFileToByteArray(new File(cipherPath)));
                 int[] unzipContent = huffman.unzip(zipContent, root);
                 FileUtils.writeByteArrayToFile(new File(decipherPath), fromIntToByte(unzipContent));
-                sendStatus(cipherIntent, CipherStatus.DECIPHER_FILE);
+                double k = (zipContent.length * 1.0) / (unzipContent.length != 0 ? unzipContent.length : zipContent.length * 1.0);
+
+                CipherActivity.receiveStatus(this, OperationStatus.UNZIP_FILE, k);
             } catch (Exception e) {
                 App.logE(TAG + e.getMessage());
             }

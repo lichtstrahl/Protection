@@ -1,5 +1,7 @@
 package zip;
 
+import android.util.SparseArray;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,8 +13,6 @@ import zip.node.LeafNode;
 import zip.node.Node;
 
 public class Huffman {
-    private static final int SIZE = 256;    // Количество значений
-
     // Не учитывается случай, когда файл состоит из одного символа
     public Container zip(int[] content) {
         // Количество повторений каждого символа. Вариационный ряд
@@ -26,8 +26,8 @@ public class Huffman {
             }
         }
 
-        // Запоминаем какому блоку соответствует какой узел в дереве
-        Map<Integer, Node> blockNodes = new HashMap<>();
+        // Запоминаем какому блоку соответствует какой узел в дереве, ведь строим мы это дерево начиная с листов, т.е. с элементов
+        SparseArray<Node> blockNodes = new SparseArray<>();
         // Очередь с приоритетами
         PriorityQueue<Node> queue = new PriorityQueue<>();
         for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
@@ -42,6 +42,10 @@ public class Huffman {
         while (queue.size() > 1) {
             Node first = queue.poll();
             Node second = queue.poll();
+
+            if (first == null || second == null)
+                break;
+
             // При "схлопывании" просто складываются повторения в общем узле
             Node newNode = new InternalNode(first, second);
             queue.add(newNode);
@@ -96,6 +100,7 @@ public class Huffman {
                 unzip.add(((LeafNode) cur).getValue());
                 cur = root;
             }
+
             cur = (c == '0')
                     ? ((InternalNode)cur).getLeft()
                     : ((InternalNode)cur).getRight();
@@ -103,7 +108,6 @@ public class Huffman {
         }
         // Последний байт обязательно нужно посмотреть
         if (cur instanceof LeafNode) unzip.add(((LeafNode) cur).getValue());
-
 
         int[] r = new int[unzip.size()];
         for (int i = 0; i < unzip.size(); i++)

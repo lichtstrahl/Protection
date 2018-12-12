@@ -9,9 +9,9 @@ import java.io.File;
 import java.io.IOException;
 
 import cipher.CipherService;
-import cipher.CipherStatus;
+import cipher.OperationStatus;
 import root.iv.protection.App;
-import root.iv.protection.CipherActivity.CipherReceiver;
+import root.iv.protection.CipherActivity;
 
 /**
  * Сбои не происходят только на текстовых файлах. В чем причина?
@@ -54,18 +54,17 @@ public class EnigmaService extends CipherService {
 
 
             try {
-                Intent cipherIntent = new Intent().setAction(CipherReceiver.ACTION);
                 int[] baseContent = fromByteToInt(FileUtils.readFileToByteArray(new File(basePath)));
-                sendStatus(cipherIntent, CipherStatus.READ_BASE_FILE);
+                CipherActivity.receiveStatus(this, OperationStatus.READ_BASE_FILE);
 
                 int[] cipherContent = enigmaCipher.cipher(baseContent);
                 FileUtils.writeByteArrayToFile(new File(cipherPath), fromIntToByte(cipherContent));
-                sendStatus(cipherIntent, CipherStatus.CIPHER_FILE);
+                CipherActivity.receiveStatus(this, OperationStatus.CIPHER_FILE);
 
 
                 int[] decipherContent = enigmaDecipher.cipher(cipherContent);
                 FileUtils.writeByteArrayToFile(new File(decipherPath), fromIntToByte(decipherContent));
-                sendStatus(cipherIntent, CipherStatus.DECIPHER_FILE);
+                CipherActivity.receiveStatus(this, OperationStatus.DECIPHER_FILE);
 
             } catch (IOException e) {
                 App.logE(TAG + e.getMessage());

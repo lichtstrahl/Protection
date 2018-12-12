@@ -14,10 +14,6 @@ abstract public class CipherService extends IntentService {
         super(name);
     }
 
-    protected void sendStatus(Intent intent, CipherStatus status) {
-        intent.putExtra(CipherActivity.CipherReceiver.INTENT_STATUS, status);
-        sendBroadcast(intent);
-    }
 
     protected int[] fromByteToInt(byte[] bytes) {
         int[] intArray = new int[bytes.length];

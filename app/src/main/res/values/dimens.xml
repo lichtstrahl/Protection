@@ -5,6 +5,8 @@
     <dimen name="stdText">16sp</dimen>
     <dimen name="stdMargin">4dp</dimen>
 
+    <dimen name="middleText">28sp</dimen>
+
     <dimen name="bigText">36sp</dimen>
     <dimen name="bigMargin">16dp</dimen>
 </resources>

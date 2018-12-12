@@ -32,4 +32,6 @@
     <!-- Fragment DES -->
     <string name="titleDES">DES</string>
     <string name="titleHuffman">Хаффман</string>
+    <string name="fileZip">Файл сжат</string>
+    <string name="fileUnzip">Файл распакован</string>
 </resources>

@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 import cipher.CipherService;
-import cipher.CipherStatus;
+import cipher.OperationStatus;
 import root.iv.protection.App;
 import root.iv.protection.CipherActivity;
 
@@ -34,17 +34,17 @@ public class DESService extends CipherService {
             try {
                 int[] baseContent = fromByteToInt(FileUtils.readFileToByteArray(new File(basePath)));
                 FileUtils.readFileToString(new File(basePath));
-                sendStatus(cipherIntent, CipherStatus.READ_BASE_FILE);
+                CipherActivity.receiveStatus(this, OperationStatus.READ_BASE_FILE);
 
-                sendStatus(cipherIntent, CipherStatus.CIPHER_FILE);
+                CipherActivity.receiveStatus(this, OperationStatus.CIPHER_FILE);
 
-                sendStatus(cipherIntent, CipherStatus.DECIPHER_FILE);
+                CipherActivity.receiveStatus(this, OperationStatus.DECIPHER_FILE);
             } catch (IOException e) {
                 App.logE(TAG + e.getMessage());
             }
         }
 
-        sendStatus(cipherIntent, CipherStatus.DECIPHER_FILE);
+        CipherActivity.receiveStatus(this, OperationStatus.DECIPHER_FILE);
     }
 
 }

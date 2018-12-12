@@ -1,5 +1,6 @@
 package root.iv.protection;
 
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,21 +17,21 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import javax.crypto.Cipher;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cipher.CipherService;
-import cipher.CipherStatus;
+import cipher.OperationStatus;
 import cipher.des.DESFragment;
 import cipher.des.DESService;
 import cipher.rsa.RSAService;
 import dialog.OpenFileDialog;
 import cipher.enigma.EnigmaFragment;
 import cipher.enigma.EnigmaService;
-import cipher.rsa.RSA;
 import cipher.rsa.RSAFragment;
+import zip.Huffman;
 import zip.HuffmanFragment;
 import zip.HuffmanService;
 
@@ -218,15 +219,31 @@ public class CipherActivity extends AppCompatActivity {
         }
     }
 
+    public static void receiveStatus(Service service, OperationStatus status) {
+        Intent intent = new Intent().setAction(CipherReceiver.ACTION);
+        intent.putExtra(CipherReceiver.INTENT_STATUS, status);
+        service.sendBroadcast(intent);
+    }
+
+    public static void receiveStatus(Service service, OperationStatus status, double k) {
+        Intent intent = new Intent().setAction(CipherReceiver.ACTION);
+        intent.putExtra(CipherReceiver.INTENT_STATUS, status);
+        intent.putExtra(CipherReceiver.INTENT_K, k);
+        service.sendBroadcast(intent);
+    }
+
+
     public class CipherReceiver extends BroadcastReceiver {
         private static final String TAG = "CipherReceiver: ";
         public static final String ACTION = "root.iv.protection.END_CIPHER";
         public static final String INTENT_STATUS = "INTENT_STATUS";
+        public static final String INTENT_K = "INTENT_K";
+
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle bundle = intent.getExtras();
             if (bundle != null) {
-                CipherStatus status = (CipherStatus)bundle.getSerializable(INTENT_STATUS);
+                OperationStatus status = (OperationStatus)bundle.getSerializable(INTENT_STATUS);
                 switch (status) {
                     case READ_BASE_FILE:
                         Toast.makeText(CipherActivity.this, R.string.baseFileReaded, Toast.LENGTH_SHORT).show();
@@ -236,6 +253,17 @@ public class CipherActivity extends AppCompatActivity {
                         break;
                     case DECIPHER_FILE:
                         Toast.makeText(CipherActivity.this, R.string.fileDeciphered, Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+                        break;
+                    case ZIP_FILE:
+                        Toast.makeText(CipherActivity.this, R.string.fileZip, Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case UNZIP_FILE:
+                        double k = bundle.getDouble(INTENT_K);
+                        HuffmanFragment f = (HuffmanFragment) fragment;
+                        f.setTitle(String.format(Locale.ENGLISH, "Сжатый файл: %8.2f", k));
+                        Toast.makeText(CipherActivity.this, R.string.fileUnzip, Toast.LENGTH_SHORT).show();
                         progressBar.setVisibility(View.GONE);
                         break;
                     default:

@@ -8,10 +8,12 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.TransitionManager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -44,6 +46,9 @@ public class CipherActivity extends AppCompatActivity {
     ProgressBar progressBar;
     @BindView(R.id.viewPath)
     TextView viewPath;
+    @BindView(R.id.layoutMain)
+    ViewGroup layoutMain;
+
     @OnClick(R.id.buttonSelectFile)
     public void clickSelectFile() {
         dialog.OpenFileDialog dialog = new OpenFileDialog(this);
@@ -91,7 +96,7 @@ public class CipherActivity extends AppCompatActivity {
     }
 
     private void startRSACipher() {
-        progressBar.setVisibility(View.VISIBLE);
+        switchVisibleProgress(View.VISIBLE);
 
         Intent rsaIntent = new Intent(this, RSAService.class);
         String path = viewPath.getText().toString();
@@ -105,13 +110,13 @@ public class CipherActivity extends AppCompatActivity {
     }
 
     private void startDESCipher() {
-        progressBar.setVisibility(View.VISIBLE);
+        switchVisibleProgress(View.VISIBLE);
         Intent intent = new Intent(this, DESService.class);
         startService(intent);
     }
 
     private void startHuffmanZip() {
-        progressBar.setVisibility(View.VISIBLE);
+        switchVisibleProgress(View.VISIBLE);
 
         Intent huffmanIntent = new Intent(this, HuffmanService.class);
         String path = viewPath.getText().toString();
@@ -232,6 +237,11 @@ public class CipherActivity extends AppCompatActivity {
         service.sendBroadcast(intent);
     }
 
+    public void switchVisibleProgress(int v) {
+        TransitionManager.beginDelayedTransition(layoutMain);
+        progressBar.setVisibility(v);
+    }
+
 
     public class CipherReceiver extends BroadcastReceiver {
         private static final String TAG = "CipherReceiver: ";
@@ -253,7 +263,8 @@ public class CipherActivity extends AppCompatActivity {
                         break;
                     case DECIPHER_FILE:
                         Toast.makeText(CipherActivity.this, R.string.fileDeciphered, Toast.LENGTH_SHORT).show();
-                        progressBar.setVisibility(View.GONE);
+                        TransitionManager.beginDelayedTransition(layoutMain);
+                        switchVisibleProgress(View.GONE);
                         break;
                     case ZIP_FILE:
                         Toast.makeText(CipherActivity.this, R.string.fileZip, Toast.LENGTH_SHORT).show();
@@ -264,7 +275,7 @@ public class CipherActivity extends AppCompatActivity {
                         HuffmanFragment f = (HuffmanFragment) fragment;
                         f.setTitle(String.format(Locale.ENGLISH, "Сжатый файл: %8.2f", k));
                         Toast.makeText(CipherActivity.this, R.string.fileUnzip, Toast.LENGTH_SHORT).show();
-                        progressBar.setVisibility(View.GONE);
+                        switchVisibleProgress(View.GONE);
                         break;
                     default:
                         throw new IllegalStateException("Не предусмотрено такого состояния");

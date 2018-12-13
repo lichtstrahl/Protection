@@ -1,13 +1,12 @@
 package zip;
 
-import android.util.SparseArray;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
+import root.iv.protection.App;
 import zip.node.InternalNode;
 import zip.node.LeafNode;
 import zip.node.Node;
@@ -27,7 +26,7 @@ public class Huffman {
         }
 
         // Запоминаем какому блоку соответствует какой узел в дереве, ведь строим мы это дерево начиная с листов, т.е. с элементов
-        SparseArray<Node> blockNodes = new SparseArray<>();
+        Map<Integer, Node> blockNodes = new HashMap<>();
         // Очередь с приоритетами
         PriorityQueue<Node> queue = new PriorityQueue<>();
         for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
@@ -55,11 +54,13 @@ public class Huffman {
         root.buildCode("");
 
         String res = "1";
+        String original = "";
         List<Integer> result = new LinkedList<>();
-        for (int i = 0; i < content.length; i++) {
-            res += blockNodes.get(content[i]).getCode();
+        for (int block : content) {
+            res += blockNodes.get(block).getCode();
+            original += blockNodes.get(block).getCode();
 
-            if (res.length() >= 8) {
+            while (res.length() >= 8) {
                 char []buf = new char[8];
                 res.getChars(0, 8, buf, 0);
                 result.add(Integer.valueOf(String.valueOf(buf), 2));
@@ -67,30 +68,43 @@ public class Huffman {
                 int n = res.length() - 8;
                 char []swap = new char[n];
                 res.getChars(8, res.length(), swap, 0);
-                res = "";
-                for (char c : swap)
-                    res += c;
+                res = String.valueOf(swap);
             }
         }
 
-        if (!res.isEmpty())
-            result.add(Integer.valueOf(res, 2));
+
+        if (!res.isEmpty()) {
+            res += "11111111";
+            char[] buf = new char[8];
+            res.getChars(0, 8, buf, 0);
+            result.add(Integer.valueOf(String.valueOf(buf), 2));
+            result.add(Integer.valueOf(res.substring(8), 2));
+        }
 
         return new Container(result, root);
     }
 
     public int[] unzip(int []zip, Node root) {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < zip.length-1; i++) {
+
+        // Последнее число не учитывается абсолютно никак
+        // А из предпоследнего необходимо удалить незначащие 1 в конце
+        for (int i = 0; i < zip.length; i++) {
             char []number = new char[] {'0','0','0','0','0','0','0','0'};
             String str = Integer.toBinaryString(zip[i]);
             int n = str.length();
             str.getChars(0, n, number, 8-n);
             builder.append(number);
-        }
-        builder.append(Integer.toBinaryString(zip[zip.length-1]));
 
-        String input = builder.toString().substring(1, builder.toString().length());
+        }
+        String s =Integer.toBinaryString(zip[zip.length-1]);    // Строковое представление последнего числа. Сколько в нём 11?
+        byte k = 0; // Количество 1
+        for (char c : s.toCharArray())
+            if (c == '1')
+                k++;
+        String input = builder.toString()
+                .substring(1, builder.toString().length() - (16-k));     // Удаляем начальную 1 // Удаляем необходимое кол-во символов в конце
+
 
         Node cur = root;
 
@@ -106,6 +120,7 @@ public class Huffman {
                     : ((InternalNode)cur).getRight();
 
         }
+
         // Последний байт обязательно нужно посмотреть
         if (cur instanceof LeafNode) unzip.add(((LeafNode) cur).getValue());
 

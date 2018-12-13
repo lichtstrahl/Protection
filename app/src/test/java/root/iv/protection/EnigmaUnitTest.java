@@ -39,27 +39,6 @@ public class EnigmaUnitTest {
         for (byte i = Byte.MIN_VALUE; i < Byte.MAX_VALUE; i++)
             array[i+128] = i;
         array[255] = 127;
-
-//        System.out.println("Begin:");
-//        enigma.printState(System.out);
-//        System.out.println();
-
-//        int[] baseArray = EnigmaService.fromByteToInt(array);
-//        assertEquals(enigma1, enigma2);
-//        int[] cipherArray1 = new int[baseArray.length];
-//        int[] cipherArray2 = new int[baseArray.length];
-//        for (int i = 0; i < baseArray.length; i++) {
-//            cipherArray1[i] = enigma1.cipher(baseArray[i]);
-//            cipherArray2[i] = enigma2.cipher(baseArray[i]);
-//            assertArrayEquals(cipherArray1, cipherArray2);
-//            assertEquals(enigma1, enigma2);
-//        }
-//
-//
-//        int[] decipherArray1 = enigma1.cipher(cipherArray1);
-//        int[] decipherArray2 = enigma2.cipher(cipherArray2);
-//        assertArrayEquals(decipherArray1, decipherArray2);
-//        assertEquals(enigma1, enigma2);
     }
 
 }

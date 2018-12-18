@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.BitSet;
 
 import cipher.CipherService;
 import cipher.OperationStatus;
@@ -29,12 +30,13 @@ public class DESService extends CipherService {
             String decipherPath = bundle.getString(INTENT_DECIPHER_NAME);
             String cipherPath = bundle.getString(INTENT_OUTFILE_NAME);
 
-            DES des = new DES(fromByteToInt("key".getBytes()));
+//            DES des = new DES(BitSet.valueOf("key".getBytes()));
 
             try {
                 int[] baseContent = fromByteToInt(FileUtils.readFileToByteArray(new File(basePath)));
                 FileUtils.readFileToString(new File(basePath));
                 CipherActivity.receiveStatus(this, OperationStatus.READ_BASE_FILE);
+
 
                 CipherActivity.receiveStatus(this, OperationStatus.CIPHER_FILE);
 

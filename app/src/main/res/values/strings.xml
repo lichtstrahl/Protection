@@ -34,4 +34,10 @@
     <string name="titleHuffman">Хаффман</string>
     <string name="fileZip">Файл сжат</string>
     <string name="fileUnzip">Файл распакован</string>
+    <string name="titleES">Электронная подпись</string>
+    <string name="createES">Подписать</string>
+    <string name="readES">Проверить</string>
+    <string name="validES">Подпись верна</string>
+    <string name="successfulCreateES">Файл подписан</string>
+    <string name="invalidES">Подпись не совпадает. Файл опасен.</string>
 </resources>

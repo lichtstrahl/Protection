@@ -14,4 +14,8 @@
     <item
         android:id="@+id/menuItemHuffman"
         android:title="@string/titleHuffman" />
+
+    <item
+        android:id="@+id/menuItemES"
+        android:title="@string/titleES" />
 </menu>

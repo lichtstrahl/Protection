@@ -16,6 +16,14 @@ public class RSA extends Encoder {
         generateKeys();
     }
 
+    public Key getPublicKey() {
+        return publicKey;
+    }
+
+    public Key getPrivateKey() {
+        return privateKey;
+    }
+
     private void generateKeys() {
         BitSet set = getPrimesUpTo(BLOCK_SIZE/2);
 
@@ -49,11 +57,15 @@ public class RSA extends Encoder {
     }
 
     public int cipher(int msg) {
-        return powerMod(msg, publicKey.getKey(), publicKey.getMod());
+        return cipher(msg, publicKey);
     }
 
     public int decipher(int c) {
-        return powerMod(c, privateKey.getKey(), privateKey.getMod());
+        return cipher(c, privateKey);
+    }
+
+    public int cipher(int msg, Key key) {
+        return powerMod(msg, key.getKey(), key.getMod());
     }
 
     public int[] decipher(int[] c) {
@@ -65,6 +77,15 @@ public class RSA extends Encoder {
 
         return m;
     }
+
+    public int[] cipher(int[] m, Key k) {
+        int n = m.length;
+        int[] r = new int[n];
+        for (int i = 0; i < n; i++)
+            r[i] = cipher(m[i], k);
+        return r;
+    }
+
 
     private static long calcuteE(long f) {
         long e = Math.abs(random.nextInt(Short.MAX_VALUE));
@@ -159,23 +180,5 @@ public class RSA extends Encoder {
         }
 
         return (int) r;
-    }
-
-    public class Key {
-        private long partKey;
-        private long mod;
-
-        Key(long k, long m) {
-            partKey = k;
-            mod = m;
-        }
-
-        long getKey() {
-            return partKey;
-        }
-
-        long getMod() {
-            return mod;
-        }
     }
 }

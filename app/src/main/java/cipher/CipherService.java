@@ -15,7 +15,7 @@ abstract public class CipherService extends IntentService {
     }
 
 
-    protected int[] fromByteToInt(byte[] bytes) {
+    public static int[] fromByteToInt(byte[] bytes) {
         int[] intArray = new int[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
             if (bytes[i] < 0) {
@@ -27,7 +27,7 @@ abstract public class CipherService extends IntentService {
         return intArray;
     }
 
-    protected byte[] fromIntToByte(int[] ints) {
+    public static byte[] fromIntToByte(int[] ints) {
         byte[] byteArray = new byte[ints.length];
         for (int i = 0; i < ints.length; i++)
             byteArray[i] = (ints[i]>127) ? (byte)( ints[i] - 256) : (byte)ints[i];

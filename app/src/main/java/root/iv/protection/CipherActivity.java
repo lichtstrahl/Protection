@@ -8,16 +8,17 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.transition.TransitionManager;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.transitionseverywhere.TransitionManager;
 
 import java.util.Locale;
 
@@ -28,16 +29,16 @@ import cipher.CipherService;
 import cipher.OperationStatus;
 import cipher.des.DESFragment;
 import cipher.des.DESService;
-import cipher.rsa.RSAService;
-import dialog.OpenFileDialog;
 import cipher.enigma.EnigmaFragment;
 import cipher.enigma.EnigmaService;
+import cipher.es.ESFragment;
 import cipher.rsa.RSAFragment;
-import zip.Huffman;
+import cipher.rsa.RSAService;
+import dialog.OpenFileDialog;
 import zip.HuffmanFragment;
 import zip.HuffmanService;
 
-public class CipherActivity extends AppCompatActivity {
+public class CipherActivity extends AppCompatActivity implements ESFragment.ESListener {
     private CipherReceiver cipherReceiver;
     Fragment fragment;
     @BindView(R.id.layoutContent)
@@ -48,6 +49,8 @@ public class CipherActivity extends AppCompatActivity {
     TextView viewPath;
     @BindView(R.id.layoutMain)
     ViewGroup layoutMain;
+    @BindView(R.id.buttonCipher)
+    Button buttonCipher;
 
     @OnClick(R.id.buttonSelectFile)
     public void clickSelectFile() {
@@ -129,21 +132,18 @@ public class CipherActivity extends AppCompatActivity {
         startService(huffmanIntent);
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cipher);
         ButterKnife.bind(this);
         cipherReceiver = new CipherReceiver();
-        viewPath.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                Toast.makeText(CipherActivity.this, v.getText().toString(), Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
 
-        if (savedInstanceState == null) fragment = setupRSAFragment();
+        if (savedInstanceState == null) fragment = setupESFragment();
+        TransitionManager.beginDelayedTransition(layoutMain);
+        TransitionManager.getDefaultTransition()
+                .setDuration(500);
     }
 
 
@@ -195,6 +195,16 @@ public class CipherActivity extends AppCompatActivity {
         return f;
     }
 
+    private Fragment setupESFragment() {
+        ESFragment f = ESFragment.getInstance();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.layoutContent, f)
+                .commit();
+        buttonCipher.setEnabled(false);
+        return f;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_cipher, menu);
@@ -203,6 +213,7 @@ public class CipherActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        buttonCipher.setEnabled(true);
         switch (item.getItemId()) {
             case R.id.menuItemEnigma:
                 fragment = setupEnigmaFragment();
@@ -218,6 +229,10 @@ public class CipherActivity extends AppCompatActivity {
 
             case R.id.menuItemHuffman:
                 fragment = setupHuffmanFragment();
+                return true;
+
+            case R.id.menuItemES:
+                fragment = setupESFragment();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -238,7 +253,6 @@ public class CipherActivity extends AppCompatActivity {
     }
 
     public void switchVisibleProgress(int v) {
-        TransitionManager.beginDelayedTransition(layoutMain);
         progressBar.setVisibility(v);
     }
 
@@ -263,7 +277,6 @@ public class CipherActivity extends AppCompatActivity {
                         break;
                     case DECIPHER_FILE:
                         Toast.makeText(CipherActivity.this, R.string.fileDeciphered, Toast.LENGTH_SHORT).show();
-                        TransitionManager.beginDelayedTransition(layoutMain);
                         switchVisibleProgress(View.GONE);
                         break;
                     case ZIP_FILE:
@@ -282,5 +295,26 @@ public class CipherActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    @Override
+    public void successfulCreateES() {
+        Toast.makeText(this, R.string.successfulCreateES, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void error(String msg) {
+        App.logE(msg);
+    }
+
+    @Override
+    public void validES() {
+        Toast.makeText(this, R.string.validES, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void invalidES() {
+        Toast.makeText(this, R.string.invalidES, Toast.LENGTH_SHORT).show();
+
     }
 }

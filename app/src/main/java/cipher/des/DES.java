@@ -1,7 +1,6 @@
 package cipher.des;
 
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Random;
 
 import cipher.Encoder;
@@ -16,44 +15,18 @@ public class DES extends Encoder {
     private boolean[][] keys;
 
 
-    // 64-х битный блок
-    public class Block {
-        public int[] value;
-        Block(int[] v) {
-            if (v.length != 8) throw new IllegalArgumentException("Длина блока не равна 8 байтам");
-            value = v;
-        }
-        public final int SIZE_OF_BYTE = 8;
-        public final int SIZE_OF_BITS = 64;
 
-        public void beginTransfer() {
-            long[] longValue = new long[value.length];
-            for (int i = 0; i < value.length; i++)
-                longValue[i] = value[i];
 
-            BitSet bitsValue = BitSet.valueOf(longValue);
-            BitSet bitsResult = BitSet.valueOf(longValue);
-            int len = bitsResult.length();
-            // i-ый бит из longValue переходит в beginIP[i]-ый бит result
-            for (int i = 0; i < Const.IP.length; i++) {
-                if (bitsValue.get(toIndex(i)))   // Если true, то также ставим 1, иначе ставим 0
-                    bitsResult.set(toIndex(Const.IP[i]-1));
-                else
-                    bitsResult.clear(toIndex(Const.IP[i]-1));
-            }
+    public static boolean[] transfer(boolean[] src, int[] transferMatrix) {
+        boolean[] oldBits = Arrays.copyOf(src, src.length);
+        boolean[] newBits = new boolean[transferMatrix.length];
 
-           longValue = bitsResult.toLongArray();
-            for (int i = 0; i < value.length; i++)
-                value[i] = (int)longValue[i];
+        for (int i = 0; i < transferMatrix.length; i++) {
+            newBits[i] = oldBits[transferMatrix[i]-1];
         }
 
+        return newBits;
     }
-
-    private int toIndex(int i) {
-        int index = 64*(i/8) + i%8;    // Индекс нужен для ориентирования в BitSet, где каждый элемент занимает 64 бита.
-        return index;
-    }
-
 
     public DES(boolean[] k) {
         if (k.length != 56) throw new IllegalArgumentException("Ключ должен быть 56 бит");
@@ -61,34 +34,53 @@ public class DES extends Encoder {
         calcuteKey();
     }
 
-
     @Override
     public int[] cipher(int[] input) {
-        // Задали корректный размер
-        if (input.length % SIZE_OF_BLOCK != 0) {
-            int n = input.length + (SIZE_OF_BLOCK - input.length%SIZE_OF_BLOCK);    // Новый размер
-            int[] newM = new int[n];                                        // Дополненное сообщение
-            for (int i = 0; i < newM.length; i++) {
-                newM[i] = i < input.length ? input[i] : 0;                          // Дополняем сообщение 0 в конце
-            }
-
-            input = Arrays.copyOf(newM, newM.length);
-        }
+        // Задали корректный размер.
+        input = toStdSize(input);
 
         // Теперь количество блоков обязательно кратно 8, спокойно делим
         int countBlocks = input.length / SIZE_OF_BLOCK;
         Block[] blocks = new Block[countBlocks];
         for (int i = 0; i < countBlocks; i++) {
-            blocks[i] = new Block(
-                    Arrays.copyOfRange(input,i*SIZE_OF_BLOCK, (i+1)*SIZE_OF_BLOCK)
-            );
+            blocks[i] = new Block(toBit64(Arrays.copyOfRange(input,i*SIZE_OF_BLOCK, (i+1)*SIZE_OF_BLOCK)));
         }
 
-        blocks[0].beginTransfer();
+        for (Block b : blocks) {
+            // Начальная перестановка
+            b.transfer(Const.IP);
 
-        roundCipher(blocks[0].value, key);
+            // 16 Раундов шифрования
+            for (int i = 0; i < 16; i++) {
+                b.value = roundCipher(blocks[0].value, i);
+            }
 
-        return new int[0];
+            // Конечная перестановка
+            b.transfer(Const.IP_1);
+        }
+
+        // Каждый блок - 64 бита - 8 байт. Длина зашифрованного сообщения не должна была измениться
+        int[] result = new int[input.length];
+        for (int i = 0; i < blocks.length; i++) {
+            int[] bytes = fromBit(blocks[i].value);  // 8 чисел
+            for (int j = i*8; j < (i+1)*8; j++) {
+                result[j] = bytes[j - i*8];
+            }
+        }
+
+        return result;
+    }
+
+    private int[] toStdSize(int[] input) {
+        if (input.length % SIZE_OF_BLOCK != 0) {
+            int n = input.length + (SIZE_OF_BLOCK - input.length%SIZE_OF_BLOCK);    // Новый размер
+            int[] newM = new int[n];                                                // Дополненное сообщение
+            for (int i = 0; i < newM.length; i++) {
+                newM[i] = i < input.length ? input[i] : 0;                          // Дополняем сообщение 0 в конце
+            }
+            return newM;
+        }
+        return input;
     }
 
     @Override
@@ -96,34 +88,75 @@ public class DES extends Encoder {
         return 0;
     }
 
-    private int[] roundCipher(int[] input, boolean[] key) {
-        if (input.length != 8) throw new IllegalArgumentException("Размер блока не 8");
-        int[] L = Arrays.copyOfRange(input, 0, input.length/2);
-        int[] R = Arrays.copyOfRange(input, input.length/2, input.length-1);
-        // Это будет началом массива. Т.е. первые 4 числа
-        int[] oldR = Arrays.copyOfRange(input, input.length/2, input.length-1);
+    private boolean[] roundCipher(boolean[] input, int iter) {
+        if (input.length != 64) throw new IllegalArgumentException("roundCipher: Длина input != 64");
+        boolean[] oldL = Arrays.copyOfRange(input, 0, 32);
+        boolean[] oldR = Arrays.copyOfRange(input, 32, 64);
 
-        // Расширение E над R
-        BitSet setR = new BitSet(32);
-        BitSet ER = new BitSet(48);
+        // Li = Ri-1
+        boolean[] newL = Arrays.copyOfRange(input, 32, 64);
+        boolean[] newR = XOR(oldL, f(oldR, keys[iter]));
 
-        for (int i = 0; i < R.length; i++) {
-            int b = R[i];
-            for (int k = 7; k >= 0; k--) {
-                if (getBit(b,k))setR.set(i*8 + 7-k);
+        boolean[] result = new boolean[64];
+
+        for (int i = 0; i < 64; i++) {
+            result[i] = (i < 32) ? newL[i] : newR[i-32];
+        }
+
+        return result;
+    }
+
+    private boolean[] f(boolean[] R, boolean[] key) {
+        // R - 32, key - 48
+        boolean[] ER = transfer(R, Const.E);
+
+        // Размер: 48. Т.е. 8 блоков B по 6 бит
+        boolean[] postXOR = XOR(ER, key);
+        boolean[][] B = new boolean[8][6];
+
+        for (int i = 0; i < 48; i++) {
+            B[i / 6][i % 6] = postXOR[i];
+        }
+
+        // Преобразования с S1 ... S8
+        boolean[] B_ = new boolean[32];
+        for (int j = 0; j < 8; j++) {
+            boolean[] Bj = B[j];        // Конкретное Bj
+            int[] S = Const.SBLOCK[j];  // Конкретная перестановка S для Bj
+            String strA = boolToStr(Bj[0]) + boolToStr(Bj[5]);
+            String strB = boolToStr(Bj[1]) + boolToStr(Bj[2]) + boolToStr(Bj[3]) + boolToStr(Bj[4]);
+            int a = Integer.valueOf(strA, 2);  // 0 .. 3
+            int b = Integer.valueOf(strB, 2);  // 0 .. 15
+            int Bj_ = S[a*16 + b];
+            String strBj_ = Integer.toBinaryString(Bj_);    // Всегда число 0 .. 15
+            boolean[] boolBj = strToBoolArray(strBj_, 4);      // 4 бита
+            for (int i = j*4; i < (j+1)*4; i++) {
+                B_[i] = boolBj[i - j*4];
             }
         }
 
-        // Расширяющая подстановка E. Она делает из 32 -> 48 бит (путём дублирования некоторых значений)
-        for (int i = 0; i < ER.size(); i++) {
-            if (setR.get(Const.E[i]))
-                ER.set(i);
-            else ER.clear(i);
+        // Последняя перестановка P
+        return transfer(B_, Const.P);
+    }
+
+    boolean[] strToBoolArray(String str, int size) {
+        int n = str.length();
+        boolean[] result = new boolean[size];
+        int offset = size - n;
+
+        for (int i = 0; i < n; i++) {
+            result[i] = (i >= offset) && charToBool(str.charAt(i));
         }
 
+        return result;
+    }
 
+    private String boolToStr(boolean b) {
+        return b ? "1" : "0";
+    }
 
-        return new int[0];
+    private boolean charToBool(char c) {
+        return c == '1';
     }
 
     public void calcuteKey() {
@@ -174,6 +207,41 @@ public class DES extends Encoder {
         return bigKey;
     }
 
+
+    private int[] fromBit(boolean[] value) {
+        int n = value.length/8;
+        int[] result = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            StringBuilder builder = new StringBuilder();
+            for (int j = i*8; j < (i+1)*8; j++) {
+                builder.append(boolToStr(value[j]));
+            }
+            result[i] = Integer.valueOf(builder.toString(), 2);
+        }
+
+        return result;
+    }
+
+    private String intToStr(int value) {
+        String str = Integer.toBinaryString(value);
+        int zeroCount = 8 - str.length();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < zeroCount; i++)
+            builder.append('0');
+        builder.append(str);
+        return builder.toString();
+    }
+
+    private boolean[] toBit64(int[] value) {
+        if (value.length != 8) throw new IllegalArgumentException("toBit64: Длина массива != 8");
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < value.length; i++)
+            builder.append(intToStr(value[i]));
+
+        return strToBoolArray(builder.toString(), 64);
+    }
+
     private boolean getBit(int n, int k) {
         return 1 == (n & (int)Math.pow(2,k));
     }
@@ -184,16 +252,6 @@ public class DES extends Encoder {
         return count;
     }
 
-    private void f(int R, int key) {
-
-    }
-
-    private int[] roundDecipher(int[] input, int[] key) {
-        int[] L = Arrays.copyOfRange(input, 0, input.length/2);
-        int[] R = Arrays.copyOfRange(input, input.length/2, input.length-1);
-
-        return ADD(L,  XOR(R, f(L, key)));  // L + XOR(R, f(L,key))
-    }
 
     private int[] shiftForward(int[] key) {
         int n = key.length;
@@ -234,6 +292,15 @@ public class DES extends Encoder {
         int[] result = new int[x1.length];
         for (int i = 0; i < x1.length; i++)
             result[i] = x1[i] ^ x2[i];
+        return result;
+    }
+
+    private boolean[] XOR(boolean[] x1, boolean[] x2) {
+        if (x1.length != x2.length) throw new IllegalArgumentException("Не совпадают размеры блоков для XOR");
+        boolean[] result = new boolean[x1.length];
+        for (int i = 0; i < x1.length; i++) {
+            result[i] = x1[i] ^ x2[i];
+        }
         return result;
     }
 

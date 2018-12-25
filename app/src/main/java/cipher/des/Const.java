@@ -2,7 +2,7 @@ package cipher.des;
 
 public class Const {
     // Начальная перестановка IP
-    static final char IP[] =
+    static final int IP[] =
             {
                     58, 50, 42, 34, 26, 18, 10, 2,
                     60, 52, 44, 36, 28, 20, 12, 4,
@@ -15,7 +15,7 @@ public class Const {
             };
 
 // Конечная перестановка IP_1
-    static final char IP_1[] =
+    static final int IP_1[] =
             {
                     40, 8, 48, 16, 56, 24, 64, 32,
                     39, 7, 47, 15, 55, 23, 63, 31,
@@ -28,7 +28,7 @@ public class Const {
             };
 
 // Расширяющая перестановка E
-    static final char E[] =
+    static final int E[] =
             {
                     32,  1,  2,  3,  4,  5,
                     4,  5,  6,  7,  8,  9,
@@ -41,7 +41,7 @@ public class Const {
             };
 
 // S-блоки
-    static final char[][] SBLOCK =
+    static final int[][] SBLOCK =
     {
         {
             // S1
@@ -102,7 +102,7 @@ public class Const {
     };
 
 // Завершающая перестановка P
-    static final char P[] =
+    static final int P[] =
             {
                     16,  7, 20, 21,
                     29, 12, 28, 17,
@@ -129,7 +129,7 @@ public class Const {
             };
 
 // Сжимающая перестановка (для ключа 56->48)
-    static final char Z[] =
+    static final int Z[] =
             {
                     14, 17, 11, 24,  1,  5,
                     3, 28, 15,  6, 21, 10,
@@ -142,7 +142,7 @@ public class Const {
             };
 
 // Сдвиг Si
-    static final char Si[] =
+    static final int Si[] =
             {
                 //  0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15
                     1,  1,  2,  2,  2,  2,  2,  2,  1,  2,  2,  2,  2,  2,  2,  1

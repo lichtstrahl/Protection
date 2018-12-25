@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
+        android:id="@+id/titleView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/bigMargin"
         android:text="@string/titleDES"
         android:textSize="@dimen/bigText"/>
+
+    <TextView
+        android:id="@+id/keyView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/bigText"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/titleView"
+        android:text="0"/>
+
+
+    <android.support.v7.widget.AppCompatSeekBar
+        android:id="@+id/seekKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/stdMargin"
+        android:layout_below="@id/keyView"
+        android:max="1231982388" />
+
 
 </RelativeLayout>

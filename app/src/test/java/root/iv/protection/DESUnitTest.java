@@ -4,8 +4,8 @@ import org.junit.Test;
 
 import java.util.BitSet;
 
-import cipher.CipherService;
-import cipher.des.DES;
+import root.iv.protection.cipher.CipherService;
+import root.iv.protection.cipher.des.DES;
 
 public class DESUnitTest {
     @Test

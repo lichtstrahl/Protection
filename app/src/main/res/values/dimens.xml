@@ -9,4 +9,6 @@
 
     <dimen name="bigText">36sp</dimen>
     <dimen name="bigMargin">16dp</dimen>
+
+    <dimen name="sizeDESLoading">200dp</dimen>
 </resources>

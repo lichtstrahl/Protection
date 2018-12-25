@@ -4,10 +4,10 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import cipher.CipherService;
-import cipher.Encoder;
-import cipher.enigma.Enigma;
-import cipher.enigma.EnigmaService;
+import root.iv.protection.cipher.CipherService;
+import root.iv.protection.cipher.Encoder;
+import root.iv.protection.cipher.enigma.Enigma;
+import root.iv.protection.cipher.enigma.EnigmaService;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;

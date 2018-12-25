@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.math.BigInteger;
 import java.util.Random;
 
-import cipher.rsa.RSA;
+import root.iv.protection.cipher.rsa.RSA;
 
 public class RSAUnitTest {
     private Random random = new Random();

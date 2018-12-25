@@ -25,20 +25,21 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import cipher.OperationStatus;
-import cipher.des.DESFragment;
-import cipher.des.DESService;
-import cipher.enigma.EnigmaFragment;
-import cipher.enigma.EnigmaService;
-import cipher.es.ESFragment;
-import cipher.rsa.RSA;
-import cipher.rsa.RSAFragment;
-import cipher.rsa.RSAService;
-import dialog.OpenFileDialog;
-import zip.HuffmanFragment;
-import zip.HuffmanService;
+import root.iv.protection.cipher.OperationStatus;
+import root.iv.protection.cipher.des.DESFragment;
+import root.iv.protection.cipher.des.DESService;
+import root.iv.protection.cipher.enigma.EnigmaFragment;
+import root.iv.protection.cipher.enigma.EnigmaService;
+import root.iv.protection.cipher.es.ESFragment;
+import root.iv.protection.cipher.rsa.RSAFragment;
+import root.iv.protection.cipher.rsa.RSAService;
+import root.iv.protection.util.dialog.OpenFileDialog;
+import root.iv.protection.zip.HuffmanFragment;
+import root.iv.protection.zip.HuffmanService;
 
 public class CipherActivity extends AppCompatActivity implements ESFragment.ESListener {
+    private static final String SAVE_PROGRESS = "save:progress";
+    private static final String SAVE_PATH = "save:path";
     private CipherReceiver cipherReceiver;
     Fragment fragment;
     @BindView(R.id.layoutContent)
@@ -54,7 +55,7 @@ public class CipherActivity extends AppCompatActivity implements ESFragment.ESLi
 
     @OnClick(R.id.buttonSelectFile)
     public void clickSelectFile() {
-        dialog.OpenFileDialog dialog = new OpenFileDialog(this);
+        root.iv.protection.util.dialog.OpenFileDialog dialog = new OpenFileDialog(this);
         dialog.setOpenDialogListener(path -> viewPath.setText(path)).setFileter(".*\\.*");
         dialog.show();
     }
@@ -64,45 +65,25 @@ public class CipherActivity extends AppCompatActivity implements ESFragment.ESLi
         if (viewPath.getText().toString().isEmpty())
             return;
 
+        switchVisibleProgress(View.VISIBLE);
         if (fragment instanceof EnigmaFragment) {
             EnigmaFragment ef = (EnigmaFragment)fragment;
-            startEnigmaCipher(ef.getPosL(), ef.getPosM(), ef.getPosR());
+            EnigmaService.start(this, viewPath.getText().toString(), ef.getPosL(), ef.getPosM(), ef.getPosR());
         }
 
         if (fragment instanceof RSAFragment) {
-            startRSACipher();
+            RSAService.start(this, viewPath.getText().toString());
         }
 
         if (fragment instanceof DESFragment) {
-            long key = 1231982388L;
-            startDESCipher(key);
+            DESFragment df = (DESFragment)fragment;
+            DESService.start(this, viewPath.getText().toString(), df.getKey());
         }
 
         if (fragment instanceof HuffmanFragment) {
-            startHuffmanZip();
+            HuffmanService.start(this, viewPath.getText().toString());
         }
     }
-
-    private void startEnigmaCipher(int pos1, int pos2, int pos3) {
-        progressBar.setVisibility(View.VISIBLE);
-        EnigmaService.start(this, viewPath.getText().toString(), pos1, pos2, pos3);
-    }
-
-    private void startRSACipher() {
-        switchVisibleProgress(View.VISIBLE);
-        RSAService.start(this, viewPath.getText().toString());
-    }
-
-    private void startDESCipher(long key) {
-        switchVisibleProgress(View.VISIBLE);
-        DESService.start(this, viewPath.getText().toString(), key);
-    }
-
-    private void startHuffmanZip() {
-        switchVisibleProgress(View.VISIBLE);
-        HuffmanService.start(this, viewPath.getText().toString());
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,12 +92,26 @@ public class CipherActivity extends AppCompatActivity implements ESFragment.ESLi
         ButterKnife.bind(this);
         cipherReceiver = new CipherReceiver();
 
-        if (savedInstanceState == null) fragment = setupESFragment();
+        if (savedInstanceState == null) {
+            fragment = setupDESFragment();
+        } else {
+            switchVisibleProgress(savedInstanceState.getBoolean(SAVE_PROGRESS)
+                ? View.VISIBLE
+                : View.GONE
+            );
+            viewPath.setText(savedInstanceState.getString(SAVE_PATH, ""));
+        }
         TransitionManager.beginDelayedTransition(layoutMain);
         TransitionManager.getDefaultTransition()
                 .setDuration(500);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(SAVE_PROGRESS, progressBar.getVisibility() != View.GONE);
+        outState.putString(SAVE_PATH, viewPath.getText().toString());
+    }
 
     @Override
     protected void onResume() {
@@ -243,13 +238,16 @@ public class CipherActivity extends AppCompatActivity implements ESFragment.ESLi
                     case READ_BASE_FILE:
                         Toast.makeText(CipherActivity.this, R.string.baseFileReaded, Toast.LENGTH_SHORT).show();
                         break;
+
                     case CIPHER_FILE:
                         Toast.makeText(CipherActivity.this, R.string.fileCiphered, Toast.LENGTH_SHORT).show();
                         break;
+
                     case DECIPHER_FILE:
                         Toast.makeText(CipherActivity.this, R.string.fileDeciphered, Toast.LENGTH_SHORT).show();
                         switchVisibleProgress(View.GONE);
                         break;
+
                     case ZIP_FILE:
                         Toast.makeText(CipherActivity.this, R.string.fileZip, Toast.LENGTH_SHORT).show();
                         break;
@@ -261,6 +259,7 @@ public class CipherActivity extends AppCompatActivity implements ESFragment.ESLi
                         Toast.makeText(CipherActivity.this, R.string.fileUnzip, Toast.LENGTH_SHORT).show();
                         switchVisibleProgress(View.GONE);
                         break;
+
                     default:
                         throw new IllegalStateException("Не предусмотрено такого состояния");
                 }
@@ -286,6 +285,5 @@ public class CipherActivity extends AppCompatActivity implements ESFragment.ESLi
     @Override
     public void invalidES() {
         Toast.makeText(this, R.string.invalidES, Toast.LENGTH_SHORT).show();
-
     }
 }

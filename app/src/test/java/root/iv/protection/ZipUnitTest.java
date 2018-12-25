@@ -1,10 +1,9 @@
 package root.iv.protection;
 
-import org.junit.Assert;
 import org.junit.Test;
 
-import zip.Container;
-import zip.Huffman;
+import root.iv.protection.zip.Container;
+import root.iv.protection.zip.Huffman;
 
 public class ZipUnitTest {
     @Test

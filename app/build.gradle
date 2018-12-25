@@ -42,5 +42,5 @@ dependencies {
     // Animation
     implementation 'com.andkulikov:transitionseverywhere:1.8.1'
     // LoadingView
-    implementation 'me.itangqi.waveloadingview:library:0.3.5'
+    implementation 'me.itangqi.waveloadingview:library:0.3.4'
 }

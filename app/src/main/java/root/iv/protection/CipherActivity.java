@@ -25,13 +25,13 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import cipher.CipherService;
 import cipher.OperationStatus;
 import cipher.des.DESFragment;
 import cipher.des.DESService;
 import cipher.enigma.EnigmaFragment;
 import cipher.enigma.EnigmaService;
 import cipher.es.ESFragment;
+import cipher.rsa.RSA;
 import cipher.rsa.RSAFragment;
 import cipher.rsa.RSAService;
 import dialog.OpenFileDialog;
@@ -74,7 +74,8 @@ public class CipherActivity extends AppCompatActivity implements ESFragment.ESLi
         }
 
         if (fragment instanceof DESFragment) {
-            startDESCipher();
+            long key = 1231982388L;
+            startDESCipher(key);
         }
 
         if (fragment instanceof HuffmanFragment) {
@@ -84,52 +85,22 @@ public class CipherActivity extends AppCompatActivity implements ESFragment.ESLi
 
     private void startEnigmaCipher(int pos1, int pos2, int pos3) {
         progressBar.setVisibility(View.VISIBLE);
-        Intent enigmaIntent = new Intent(this, EnigmaService.class);
-        String path = viewPath.getText().toString();
-        String[] word = path.split("/");
-        String filename = word[word.length-1];
-
-        enigmaIntent.putExtra(CipherService.INTENT_PATH, path);
-        enigmaIntent.putExtra(CipherService.INTENT_OUTFILE_NAME, path.replace(filename, "cipher_"+filename));
-        enigmaIntent.putExtra(EnigmaService.INTENT_DECIPHER_NAME, path.replace(filename, "decipher_"+filename));
-        enigmaIntent.putExtra(EnigmaService.INTENT_POS1, pos1);
-        enigmaIntent.putExtra(EnigmaService.INTENT_POS2, pos2);
-        enigmaIntent.putExtra(EnigmaService.INTENT_POS3, pos3);
-        startService(enigmaIntent);
+        EnigmaService.start(this, viewPath.getText().toString(), pos1, pos2, pos3);
     }
 
     private void startRSACipher() {
         switchVisibleProgress(View.VISIBLE);
-
-        Intent rsaIntent = new Intent(this, RSAService.class);
-        String path = viewPath.getText().toString();
-        String[] word = path.split("/");
-        String filename = word[word.length-1];
-
-        rsaIntent.putExtra(EnigmaService.INTENT_PATH, path);
-        rsaIntent.putExtra(EnigmaService.INTENT_OUTFILE_NAME, path.replace(filename, "cipher_"+filename));
-        rsaIntent.putExtra(EnigmaService.INTENT_DECIPHER_NAME, path.replace(filename, "decipher_"+filename));
-        startService(rsaIntent);
+        RSAService.start(this, viewPath.getText().toString());
     }
 
-    private void startDESCipher() {
+    private void startDESCipher(long key) {
         switchVisibleProgress(View.VISIBLE);
-        Intent intent = new Intent(this, DESService.class);
-        startService(intent);
+        DESService.start(this, viewPath.getText().toString(), key);
     }
 
     private void startHuffmanZip() {
         switchVisibleProgress(View.VISIBLE);
-
-        Intent huffmanIntent = new Intent(this, HuffmanService.class);
-        String path = viewPath.getText().toString();
-        String[] word = path.split("/");
-        String filename = word[word.length-1];
-
-        huffmanIntent.putExtra(EnigmaService.INTENT_PATH, path);
-        huffmanIntent.putExtra(EnigmaService.INTENT_OUTFILE_NAME, path.replace(filename, "cipher_"+filename));
-        huffmanIntent.putExtra(EnigmaService.INTENT_DECIPHER_NAME, path.replace(filename, "decipher_"+filename));
-        startService(huffmanIntent);
+        HuffmanService.start(this, viewPath.getText().toString());
     }
 
 

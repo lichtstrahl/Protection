@@ -1,5 +1,6 @@
 package cipher.enigma;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -17,9 +18,9 @@ import root.iv.protection.CipherActivity;
  * Сбои не происходят только на текстовых файлах. В чем причина?
  */
 public class EnigmaService extends CipherService {
-    public static final String INTENT_POS1 = "INTENT_POS1";
-    public static final String INTENT_POS2 = "INTENT_POS2";
-    public static final String INTENT_POS3 = "INTENT_POS3";
+    private static final String INTENT_POS1 = "INTENT_POS1";
+    private static final String INTENT_POS2 = "INTENT_POS2";
+    private static final String INTENT_POS3 = "INTENT_POS3";
     private static final  String TAG = "Enigma Service: ";
     private static final Enigma originalEnigma = new Enigma(0,0,0);
     private Enigma enigmaCipher;
@@ -70,5 +71,16 @@ public class EnigmaService extends CipherService {
                 App.logE(TAG + e.getMessage());
             }
         }
+    }
+
+    public static void start(Activity activity, String path, int pos1, int pos2, int pos3) {
+        Intent intent = new Intent(activity, EnigmaService.class);
+
+        init(intent, path);
+        intent.putExtra(INTENT_POS1, pos1);
+        intent.putExtra(INTENT_POS2, pos2);
+        intent.putExtra(INTENT_POS3, pos3);
+
+        activity.startService(intent);
     }
 }

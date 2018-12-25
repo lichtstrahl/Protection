@@ -1,5 +1,6 @@
 package cipher.rsa;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -50,5 +51,9 @@ public class RSAService extends CipherService {
         }
     }
 
-
+    public static void start(Activity activity,String path) {
+        Intent rsaIntent = new Intent(activity, RSAService.class);
+        RSAService.init(rsaIntent, path);
+        activity.startService(rsaIntent);
+    }
 }

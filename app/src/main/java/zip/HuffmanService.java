@@ -1,5 +1,6 @@
 package zip;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -97,5 +98,11 @@ public class HuffmanService extends CipherService {
             App.logE(e.getMessage());
         }
         return root;
+    }
+
+    public static void start(Activity activity, String path) {
+        Intent intent = new Intent(activity, HuffmanService.class);
+        init(intent, path);
+        activity.startService(intent);
     }
 }

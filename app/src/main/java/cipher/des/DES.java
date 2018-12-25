@@ -1,21 +1,11 @@
 package cipher.des;
 
 import java.util.Arrays;
-import java.util.Random;
-
-import cipher.Encoder;
 
 public class DES {
     private static final int SIZE_OF_BLOCK = 8; // Размер блока в байтах, также размер одного символа
-//    private static final int SIZE_OF_CHAR = 8;  // Размер одного символа (utf8)
-    private static final int shiftKey = 2;      // Сдвиг ключа
-    private static final int countOfRounds = 16;// Количество раундов в сети Фейстеля
-    private static final Random random = new Random();
     private boolean[] key;
     private boolean[][] keys;
-
-
-
 
     public static boolean[] transfer(boolean[] src, int[] transferMatrix) {
         boolean[] oldBits = Arrays.copyOf(src, src.length);
@@ -30,6 +20,23 @@ public class DES {
 
     public DES(boolean[] k) {
         if (k.length != 56) throw new IllegalArgumentException("Ключ должен быть 56 бит");
+        init(k);
+    }
+
+    public DES(long k) {
+        if (k <= 0 || k >= 72057594037927936L) throw new IllegalArgumentException("Целочисленный ключ не корректен");
+        String strKey = Long.toBinaryString(k);
+        int zeroCount = 56 - strKey.length();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < zeroCount; i++) {
+            builder.append('0');
+        }
+        builder.append(strKey);
+
+        init(strToBoolArray(builder.toString(), 56));
+    }
+
+    private void init(boolean[] k) {
         key = k;
         calcuteKey();
     }
@@ -73,7 +80,9 @@ public class DES {
             b.transfer(Const.IP_1);
         }
 
-        return buildFromBlocks(blocks);
+        int[] result =  buildFromBlocks(blocks);
+        int n = result.length;
+        return Arrays.copyOfRange(result, 0, n - 1 - result[n-1]);
     }
 
     public boolean[] roundDecipher(boolean[] input, int iter) {
@@ -138,15 +147,27 @@ public class DES {
     }
 
     private int[] toStdSize(int[] input) {
-        if (input.length % SIZE_OF_BLOCK != 0) {
-            int n = input.length + (SIZE_OF_BLOCK - input.length%SIZE_OF_BLOCK);    // Новый размер
-            int[] newM = new int[n];                                                // Дополненное сообщение
-            for (int i = 0; i < newM.length; i++) {
-                newM[i] = i < input.length ? input[i] : 0;                          // Дополняем сообщение 0 в конце
-            }
-            return newM;
+//        if (input.length % SIZE_OF_BLOCK != 0) {
+//            int n = input.length + (SIZE_OF_BLOCK - input.length%SIZE_OF_BLOCK);    // Новый размер
+//            int[] newM = new int[n];                                                // Дополненное сообщение
+//            for (int i = 0; i < newM.length; i++) {
+//                newM[i] = i < input.length ? input[i] : 0;                          // Дополняем сообщение 0 в конце
+//            }
+//            return newM;
+//        }
+//        return input;
+//
+        int delta = (input.length+1) % SIZE_OF_BLOCK != 0
+                ? (SIZE_OF_BLOCK - (input.length+1)%SIZE_OF_BLOCK)
+                : 0;
+        int n = input.length + 1 + delta;
+        int[] newM = new int[n];
+
+        for (int i = 0; i < newM.length-1; i++) {
+            newM[i] = i < input.length ? input[i] : 0;
         }
-        return input;
+        newM[n-1] = delta;
+        return newM;
     }
 
     private boolean[] f(boolean[] R, boolean[] key) {
@@ -182,7 +203,7 @@ public class DES {
         return transfer(B_, Const.P);
     }
 
-    boolean[] strToBoolArray(String str, int size) {
+    private boolean[] strToBoolArray(String str, int size) {
         int n = str.length();
         boolean[] result = new boolean[size];
         int offset = size - n;
@@ -279,31 +300,16 @@ public class DES {
     private boolean[] toBit64(int[] value) {
         if (value.length != 8) throw new IllegalArgumentException("toBit64: Длина массива != 8");
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < value.length; i++)
-            builder.append(intToStr(value[i]));
+        for (int v : value)
+            builder.append(intToStr(v));
 
         return strToBoolArray(builder.toString(), 64);
-    }
-
-    private boolean getBit(int n, int k) {
-        return 1 == (n & (int)Math.pow(2,k));
     }
 
     private int count1(int beginIndex, int endIndex) {
         int count = 0;
         for (int i = beginIndex; i <= endIndex; i++) if (key[i]) count++;
         return count;
-    }
-
-
-    private int[] shiftForward(int[] key) {
-        int n = key.length;
-        int buf = key[n-1];
-        for (int i = n-1; i > 0; i--) {
-            key[i] = key[i-1];
-        }
-        key[0] = buf;
-        return key;
     }
 
     private int[] shiftBack(int[] key) {
@@ -316,28 +322,6 @@ public class DES {
         return key;
     }
 
-    private boolean[] shiftBack(boolean[] key) {
-        int n = key.length;
-        boolean buf = key[0];
-        System.arraycopy(key, 1, key, 0, n - 1);
-        key[n-1] = buf;
-        return key;
-    }
-
-    private int[] ADD(int[] x1, int[] x2) {
-        int[] result = new int[x1.length];
-        for (int i = 0; i < x1.length; i++)
-            result[i] = x1[i] + x2[i];
-        return result;
-    }
-
-    private int[] XOR(int[] x1, int[] x2) {
-        int[] result = new int[x1.length];
-        for (int i = 0; i < x1.length; i++)
-            result[i] = x1[i] ^ x2[i];
-        return result;
-    }
-
     private boolean[] XOR(boolean[] x1, boolean[] x2) {
         if (x1.length != x2.length) throw new IllegalArgumentException("Не совпадают размеры блоков для XOR");
         boolean[] result = new boolean[x1.length];
@@ -347,7 +331,4 @@ public class DES {
         return result;
     }
 
-    private int[] f(int[] x1, int[] x2) {
-        return XOR(x1, x2);
-    }
 }

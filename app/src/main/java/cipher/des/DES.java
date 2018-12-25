@@ -5,7 +5,7 @@ import java.util.Random;
 
 import cipher.Encoder;
 
-public class DES extends Encoder {
+public class DES {
     private static final int SIZE_OF_BLOCK = 8; // Размер блока в байтах, также размер одного символа
 //    private static final int SIZE_OF_CHAR = 8;  // Размер одного символа (utf8)
     private static final int shiftKey = 2;      // Сдвиг ключа
@@ -34,17 +34,12 @@ public class DES extends Encoder {
         calcuteKey();
     }
 
-    @Override
     public int[] cipher(int[] input) {
         // Задали корректный размер.
         input = toStdSize(input);
 
         // Теперь количество блоков обязательно кратно 8, спокойно делим
-        int countBlocks = input.length / SIZE_OF_BLOCK;
-        Block[] blocks = new Block[countBlocks];
-        for (int i = 0; i < countBlocks; i++) {
-            blocks[i] = new Block(toBit64(Arrays.copyOfRange(input,i*SIZE_OF_BLOCK, (i+1)*SIZE_OF_BLOCK)));
-        }
+        Block[] blocks = splitBlocks(input);
 
         for (Block b : blocks) {
             // Начальная перестановка
@@ -52,15 +47,86 @@ public class DES extends Encoder {
 
             // 16 Раундов шифрования
             for (int i = 0; i < 16; i++) {
-                b.value = roundCipher(blocks[0].value, i);
+                b.value = roundCipher(b.value, i);
             }
 
             // Конечная перестановка
             b.transfer(Const.IP_1);
         }
 
+        // Преобразуем зашифрованные блоки в последовательность байт
+        return buildFromBlocks(blocks);
+    }
+
+    public int[] decipher(int[] input) {
+        // Размер точно кратен 8
+        Block[] blocks = splitBlocks(input);
+
+        for (Block b : blocks) {
+            b.transfer(Const.IP);
+
+            // 16 раундов расшифрования
+            for (int i = 15; i >=0; i--) {
+                b.value = roundDecipher(b.value, i);
+            }
+
+            b.transfer(Const.IP_1);
+        }
+
+        return buildFromBlocks(blocks);
+    }
+
+    public boolean[] roundDecipher(boolean[] input, int iter) {
+        if (input.length != 64) throw new IllegalArgumentException("roundDecipher: Длина input != 64");
+        boolean[] oldL = Arrays.copyOfRange(input, 0, 32);
+        boolean[] oldR = Arrays.copyOfRange(input, 32, 64);
+
+        // Li = Ri-1
+        boolean[] newL = XOR(oldR, f(oldL, keys[iter]));
+        boolean[] newR = Arrays.copyOfRange(input, 0, 32);
+
+
+        boolean[] result = new boolean[64];
+
+        for (int i = 0; i < 64; i++) {
+            result[i] = (i < 32) ? newL[i] : newR[i-32];
+        }
+
+        return result;
+
+    }
+
+
+    private boolean[] roundCipher(boolean[] input, int iter) {
+        if (input.length != 64) throw new IllegalArgumentException("roundCipher: Длина input != 64");
+        boolean[] oldL = Arrays.copyOfRange(input, 0, 32);
+        boolean[] oldR = Arrays.copyOfRange(input, 32, 64);
+
+        // Li = Ri-1
+        boolean[] newL = Arrays.copyOfRange(input, 32, 64);
+        boolean[] newR = XOR(oldL, f(oldR, keys[iter]));
+
+        boolean[] result = new boolean[64];
+
+        for (int i = 0; i < 64; i++) {
+            result[i] = (i < 32) ? newL[i] : newR[i-32];
+        }
+
+        return result;
+    }
+
+    private Block[] splitBlocks(int[] input) {
+        int countBlocks = input.length / SIZE_OF_BLOCK;
+        Block[] blocks = new Block[countBlocks];
+        for (int i = 0; i < countBlocks; i++) {
+            blocks[i] = new Block(toBit64(Arrays.copyOfRange(input, i*SIZE_OF_BLOCK, (i+1)*SIZE_OF_BLOCK)));
+        }
+        return blocks;
+    }
+
+    private int[] buildFromBlocks(Block[] blocks) {
         // Каждый блок - 64 бита - 8 байт. Длина зашифрованного сообщения не должна была измениться
-        int[] result = new int[input.length];
+        int[] result = new int[blocks.length*8];
         for (int i = 0; i < blocks.length; i++) {
             int[] bytes = fromBit(blocks[i].value);  // 8 чисел
             for (int j = i*8; j < (i+1)*8; j++) {
@@ -81,29 +147,6 @@ public class DES extends Encoder {
             return newM;
         }
         return input;
-    }
-
-    @Override
-    public int cipher(int m) {
-        return 0;
-    }
-
-    private boolean[] roundCipher(boolean[] input, int iter) {
-        if (input.length != 64) throw new IllegalArgumentException("roundCipher: Длина input != 64");
-        boolean[] oldL = Arrays.copyOfRange(input, 0, 32);
-        boolean[] oldR = Arrays.copyOfRange(input, 32, 64);
-
-        // Li = Ri-1
-        boolean[] newL = Arrays.copyOfRange(input, 32, 64);
-        boolean[] newR = XOR(oldL, f(oldR, keys[iter]));
-
-        boolean[] result = new boolean[64];
-
-        for (int i = 0; i < 64; i++) {
-            result[i] = (i < 32) ? newL[i] : newR[i-32];
-        }
-
-        return result;
     }
 
     private boolean[] f(boolean[] R, boolean[] key) {

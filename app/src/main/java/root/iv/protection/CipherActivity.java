@@ -1,5 +1,6 @@
 package root.iv.protection;
 
+import android.Manifest;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.transitionseverywhere.TransitionManager;
 
 import java.util.Locale;
@@ -26,6 +28,8 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 import root.iv.protection.cipher.OperationStatus;
 import root.iv.protection.cipher.des.DESFragment;
 import root.iv.protection.cipher.des.DESService;
@@ -54,12 +58,24 @@ public class CipherActivity extends AppCompatActivity implements ESFragment.ESLi
     @BindView(R.id.buttonCipher)
     Button buttonCipher;
 
+    private Disposable permissionDisposable;
+
     @OnClick(R.id.buttonSelectFile)
     public void clickSelectFile() {
 
-        root.iv.protection.util.dialog.OpenFileDialog dialog = new OpenFileDialog(this);
-        dialog.setOpenDialogListener(path -> viewPath.setText(path)).setFileter(".*\\.*");
-        dialog.show();
+        permissionDisposable = new RxPermissions(this).request(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE
+        ).subscribe(granted -> {
+            if (granted) {
+                OpenFileDialog dialog = new OpenFileDialog(this);
+                dialog.setOpenDialogListener(path -> viewPath.setText(path)).setFileter(".*\\.*");
+                dialog.show();
+            } else {
+                Toast.makeText(this, "Необходимо выдать разрешения", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
     }
 
     @OnClick(R.id.buttonCipher)
@@ -125,6 +141,7 @@ public class CipherActivity extends AppCompatActivity implements ESFragment.ESLi
     protected void onStop() {
         super.onStop();
         unregisterReceiver(cipherReceiver);
+        permissionDisposable.dispose();
     }
 
     private Fragment setupEnigmaFragment() {

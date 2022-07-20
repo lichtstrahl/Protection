@@ -23,7 +23,7 @@
         android:text="0"/>
 
 
-    <android.support.v7.widget.AppCompatSeekBar
+    <androidx.appcompat.widget.AppCompatSeekBar
         android:id="@+id/seekKey"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

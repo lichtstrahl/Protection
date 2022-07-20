@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +15,9 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.transitionseverywhere.TransitionManager;
 
@@ -55,6 +56,7 @@ public class CipherActivity extends AppCompatActivity implements ESFragment.ESLi
 
     @OnClick(R.id.buttonSelectFile)
     public void clickSelectFile() {
+
         root.iv.protection.util.dialog.OpenFileDialog dialog = new OpenFileDialog(this);
         dialog.setOpenDialogListener(path -> viewPath.setText(path)).setFileter(".*\\.*");
         dialog.show();
